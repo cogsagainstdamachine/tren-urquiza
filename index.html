@@ -136,19 +136,19 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .time-row{display:flex;gap:.7rem;align-items:flex-end}
 .time-row .field{flex:1}
 .btn-now{
-  padding:.3rem .65rem;
+  padding:.62rem .75rem;
   background:transparent;
   border:1.5px solid var(--teal);
-  border-radius:5px;
+  border-radius:7px;
   color:var(--teal-dark);
   font-family:var(--font-body);
-  font-size:.7rem;font-weight:600;
+  font-size:.75rem;font-weight:600;
   letter-spacing:.4px;
   cursor:pointer;
   transition:all .15s;
   white-space:nowrap;
-  margin-top:.35rem;
   display:inline-flex;align-items:center;gap:.3rem;
+  height:calc(1.5rem + 1.24rem + 2px);
 }
 .btn-now:hover{background:var(--teal);color:#fff}
 .btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
@@ -385,12 +385,10 @@ footer strong{color:var(--teal)}
       <div class="eyebrow">Hora de salida</div>
       <div class="time-row">
         <div class="field">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
-            <label for="ttime" style="margin-bottom:0">Hora</label>
-            <button class="btn-now" id="now-btn" aria-label="Usar hora actual">⏱ Ahora</button>
-          </div>
+          <label for="ttime">Hora</label>
           <input type="time" id="ttime"/>
         </div>
+        <button class="btn-now" id="now-btn" aria-label="Usar hora actual">⏱ Ahora</button>
         <button class="btn" id="go" aria-label="Buscar próximos trenes">BUSCAR</button>
       </div>
     </div>
