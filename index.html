@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tren Urquiza — Horarios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0b1f2e;
+  --ink-mid:#2a4455;
+  --ink-light:#5a7a8a;
+  --teal:#009b9b;
+  --teal-dark:#007373;
+  --teal-xlight:#e6f7f7;
+  --teal-light:#b8e8e8;
+  --paper:#f5f9f9;
+  --white:#ffffff;
+  --rule:#ddeaec;
+  --accent:#e05a20;
+  --green:#1aad6e;
+  --yellow:#e09500;
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.5}
+
+.skip{position:absolute;top:-60px;left:1rem;background:var(--teal);color:#fff;padding:.4rem .9rem;border-radius:0 0 6px 6px;font-weight:600;font-size:.85rem;z-index:9999;text-decoration:none;transition:top .2s}
+.skip:focus{top:0}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:var(--ink);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.7rem 1.5rem;
+  position:sticky;top:0;z-index:200;
+  border-bottom:3px solid var(--teal);
+  gap:1rem;
+}
+.topbar-left{display:flex;align-items:center;gap:.85rem;min-width:0}
+.train-icon{
+  width:38px;height:38px;flex-shrink:0;
+  background:rgba(0,155,155,.15);
+  border:1.5px solid var(--teal);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.train-icon svg{width:20px;height:20px}
+.brand{min-width:0}
+.brand-name{font-family:var(--font-display);font-size:1.5rem;letter-spacing:2.5px;line-height:1;color:#fff;white-space:nowrap}
+.brand-sub{font-size:.62rem;font-weight:400;color:#6a9aaa;letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
+.topbar-right{text-align:right;flex-shrink:0}
+.clock{font-family:var(--font-display);font-size:1.55rem;letter-spacing:2px;color:var(--teal);line-height:1}
+.dateline{font-size:.62rem;color:#6a9aaa;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+
+/* ── LAYOUT ── */
+.layout{
+  display:grid;
+  grid-template-columns:360px 1fr;
+  height:calc(100vh - 56px);
+  overflow:hidden;
+}
+@media(max-width:720px){
+  .layout{grid-template-columns:1fr;height:auto;overflow:visible}
+  .map-col{display:none}
+}
+
+/* ── LEFT COLUMN ── */
+.left-col{
+  display:flex;flex-direction:column;
+  background:var(--white);
+  border-right:1px solid var(--rule);
+  overflow-y:auto;
+}
+
+.pane{padding:1.1rem 1.4rem;border-bottom:1px solid var(--rule)}
+.pane:last-child{border-bottom:none}
+
+.eyebrow{
+  font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+  color:var(--teal-dark);margin-bottom:.75rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.eyebrow::before{content:'';width:14px;height:2px;background:var(--teal);border-radius:2px;display:block}
+
+/* DAY PILLS */
+.pills{display:flex;gap:.35rem}
+.pill{
+  flex:1;padding:.55rem .3rem;text-align:center;
+  border:1.5px solid var(--rule);border-radius:6px;
+  background:var(--paper);
+  font-family:var(--font-body);font-size:.78rem;font-weight:500;color:var(--ink-light);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.pill:hover{border-color:var(--teal);color:var(--teal-dark)}
+.pill.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+.pill:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
+
+/* ROUTE FIELDS */
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field label{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--ink-light)}
+.field select,.field input[type=time]{
+  width:100%;border:1.5px solid var(--rule);border-radius:7px;
+  padding:.62rem .85rem;font-family:var(--font-body);font-size:.92rem;color:var(--ink);
+  background:var(--paper);appearance:none;-webkit-appearance:none;cursor:pointer;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23009b9b' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right .8rem center;padding-right:2rem;
+}
+.field select:focus,.field input[type=time]:focus{
+  outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,155,155,.18);background:var(--white);
+}
+
+.route-stack{display:flex;flex-direction:column;gap:0}
+.swap-row{
+  display:flex;align-items:center;gap:.5rem;padding:.25rem 0;
+}
+.swap-rule{flex:1;height:1px;background:var(--rule)}
+.swap-btn{
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--rule);background:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;flex-shrink:0;
+}
+.swap-btn:hover{background:var(--teal);border-color:var(--teal)}
+.swap-btn:hover path{stroke:#fff}
+.swap-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
+.swap-btn path{stroke:var(--teal);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
+
+.time-row{display:flex;gap:.7rem;align-items:flex-end}
+.time-row .field{flex:1}
+.btn-now{
+  padding:.3rem .65rem;
+  background:transparent;
+  border:1.5px solid var(--teal);
+  border-radius:5px;
+  color:var(--teal-dark);
+  font-family:var(--font-body);
+  font-size:.7rem;font-weight:600;
+  letter-spacing:.4px;
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+  margin-top:.35rem;
+  display:inline-flex;align-items:center;gap:.3rem;
+}
+.btn-now:hover{background:var(--teal);color:#fff}
+.btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
+.btn{
+  padding:.62rem 1.1rem;background:var(--teal);color:#fff;
+  font-family:var(--font-display);font-size:1.1rem;letter-spacing:2px;
+  border:none;border-radius:7px;cursor:pointer;white-space:nowrap;
+  transition:background .15s,transform .1s;
+  height:calc(1.5rem + 1.24rem + 2px); /* match input height */
+  display:flex;align-items:center;
+}
+.btn:hover{background:var(--teal-dark)}
+.btn:active{transform:scale(.98)}
+.btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
+
+/* RESULTS */
+.results-empty{text-align:center;padding:2rem 1rem;color:var(--ink-light);font-size:.85rem}
+.results-empty .icon{font-size:2rem;display:block;margin-bottom:.5rem}
+
+.results-top{margin-bottom:.85rem}
+.results-heading{font-family:var(--font-display);font-size:1.25rem;letter-spacing:1.5px;color:var(--ink);line-height:1}
+.results-route{font-size:.72rem;color:var(--ink-light);margin-top:.2rem}
+
+.cards{display:flex;flex-direction:column;gap:.45rem}
+
+.card{
+  display:grid;grid-template-columns:68px 1fr auto;
+  align-items:center;gap:.7rem;
+  padding:.8rem .9rem;
+  border-radius:8px;border:1.5px solid var(--rule);background:var(--paper);
+  animation:fadeUp .22s ease both;
+  transition:border-color .15s,box-shadow .15s;
+}
+.card:hover{border-color:var(--teal-light);box-shadow:0 2px 10px rgba(0,155,155,.1)}
+.card.next{background:var(--white);border-color:var(--teal);box-shadow:0 3px 14px rgba(0,155,155,.14)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:0ms}
+.card:nth-child(2){animation-delay:45ms}
+.card:nth-child(3){animation-delay:90ms}
+.card:nth-child(4){animation-delay:135ms}
+.card:nth-child(5){animation-delay:180ms}
+
+.dep{font-family:var(--font-display);font-size:1.55rem;letter-spacing:.5px;color:var(--teal-dark);line-height:1}
+.card.next .dep{color:var(--teal)}
+.meta{}
+.arr{font-size:.72rem;color:var(--ink-light);margin-bottom:.1rem}
+.arr strong{color:var(--ink-mid);font-weight:600}
+.dir{font-size:.62rem;font-weight:500;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-light)}
+.next-lozenge{
+  display:inline-block;background:var(--teal);color:#fff;
+  font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:.12rem .45rem;border-radius:20px;margin-bottom:.2rem;
+}
+.wait{text-align:right}
+.wait-num{font-family:var(--font-display);font-size:1rem;letter-spacing:.5px;line-height:1}
+.wait-lbl{font-size:.58rem;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-light);display:block;margin-top:2px}
+.wait-num.now{color:var(--green)}
+.wait-num.soon{color:var(--accent)}
+.wait-num.ok{color:var(--ink-mid)}
+
+.no-trains{padding:1rem;background:#fff4f0;border-radius:8px;border:1.5px solid #fcc9b5;color:var(--accent);font-size:.83rem;font-weight:500;text-align:center}
+
+/* INFO */
+.info-box{
+  background:var(--teal-xlight);border:1px solid var(--teal-light);
+  border-radius:7px;padding:.65rem .85rem;
+  font-size:.73rem;color:var(--teal-dark);line-height:1.55;
+}
+.info-box strong{font-weight:600}
+
+/* ── MAP COLUMN ── */
+.map-col{
+  display:flex;flex-direction:column;
+  background:var(--paper);
+  padding:1.5rem 1.8rem;
+  overflow:hidden;
+}
+.map-heading{font-family:var(--font-display);font-size:1.55rem;letter-spacing:2.5px;color:var(--ink);line-height:1;margin-bottom:.2rem}
+.map-sub{font-size:.7rem;color:var(--ink-light);letter-spacing:.3px;margin-bottom:1.4rem}
+
+.map-wrap{flex:1;overflow-y:auto;padding-right:.5rem}
+
+/* VERTICAL STATION MAP */
+.smap{display:flex;flex-direction:column;gap:0;position:relative;padding-left:2rem}
+
+/* The continuous rail line */
+.smap::before{
+  content:'';position:absolute;
+  left:calc(2rem + 10px);top:11px;bottom:11px;
+  width:4px;background:var(--rule);border-radius:4px;z-index:0;
+  transition:background .2s;
+}
+
+.srow{
+  display:flex;align-items:center;gap:.9rem;
+  position:relative;z-index:2;
+  min-height:36px;cursor:pointer;
+  border-radius:6px;padding:.1rem .5rem .1rem 0;
+  transition:background .12s;
+}
+.srow:hover{background:rgba(0,155,155,.06)}
+.srow:focus{outline:none;background:rgba(0,155,155,.08)}
+
+/* colored segment behind rail (overlays ::before) */
+.seg{
+  position:absolute;
+  left:calc(2rem + 10px);
+  width:4px;
+  background:var(--teal);
+  z-index:1;
+  transform:translateX(-50%);
+  margin-left:2px;
+  pointer-events:none;
+  transition:opacity .2s;
+  opacity:0;
+}
+.seg.show{opacity:1}
+
+.sdot{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--white);border:2.5px solid var(--rule);
+  flex-shrink:0;z-index:3;position:relative;
+  transition:all .18s;
+}
+.sdot.terminal{background:var(--ink);border-color:var(--ink);width:24px;height:24px;margin-left:-2px}
+.sdot.route{background:var(--teal-xlight);border-color:var(--teal)}
+.sdot.origin{background:var(--teal);border-color:var(--teal-dark);width:24px;height:24px;margin-left:-2px;box-shadow:0 0 0 3px rgba(0,155,155,.2)}
+.sdot.dest{background:var(--accent);border-color:var(--accent);width:24px;height:24px;margin-left:-2px;box-shadow:0 0 0 3px rgba(224,90,32,.15)}
+
+.sname{font-size:.78rem;font-weight:400;color:var(--ink-mid);transition:all .12s;user-select:none;white-space:nowrap}
+.srow:hover .sname{color:var(--ink);font-weight:500}
+.sname.route{font-weight:500;color:var(--ink)}
+.sname.origin{font-weight:700;color:var(--teal-dark)}
+.sname.dest{font-weight:700;color:var(--accent)}
+
+.stag{
+  font-size:.57rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  padding:.08rem .4rem;border-radius:20px;margin-left:.4rem;vertical-align:middle;
+}
+.stag.o{background:var(--teal-xlight);color:var(--teal-dark)}
+.stag.d{background:#fde5d8;color:var(--accent)}
+
+/* LEGEND */
+.legend{
+  display:flex;gap:1.1rem;flex-wrap:wrap;
+  padding-top:1rem;border-top:1px solid var(--rule);margin-top:.8rem;
+}
+.leg{display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--ink-light)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* MAP CLICK HINT */
+.map-hint{
+  font-size:.68rem;color:var(--ink-light);font-style:italic;
+  margin-bottom:.9rem;margin-top:-.6rem;
+}
+
+/* FOOTER */
+footer{
+  background:var(--ink);color:#4a7080;
+  text-align:center;padding:.75rem;
+  font-size:.68rem;letter-spacing:.3px;
+  border-top:2px solid var(--teal-dark);
+}
+footer strong{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip">Ir al contenido principal</a>
+
+<!-- TOP BAR -->
+<header class="topbar" role="banner">
+  <div class="topbar-left">
+    <div class="train-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="5" width="18" height="11" rx="2" stroke="#009b9b" stroke-width="1.7"/>
+        <circle cx="7.5" cy="17.5" r="1.8" stroke="#009b9b" stroke-width="1.7"/>
+        <circle cx="16.5" cy="17.5" r="1.8" stroke="#009b9b" stroke-width="1.7"/>
+        <path d="M3 9.5h18M9 5v4.5M15 5v4.5" stroke="#009b9b" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <div class="brand-name">Tren Urquiza</div>
+      <div class="brand-sub">Pcia. de Buenos Aires · Metrovías</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="clock" id="clock" aria-live="polite" aria-label="Hora actual"></div>
+    <div class="dateline" id="dateline"></div>
+  </div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout" id="main">
+
+  <!-- LEFT: CONTROLS + RESULTS -->
+  <aside class="left-col" aria-label="Planificador de viaje">
+
+    <!-- DAY -->
+    <div class="pane">
+      <div class="eyebrow">Día</div>
+      <div class="pills" role="group" aria-label="Tipo de día">
+        <button class="pill" data-day="weekday" aria-pressed="false">Lun — Vie</button>
+        <button class="pill" data-day="saturday" aria-pressed="false">Sábado</button>
+        <button class="pill" data-day="sunday" aria-pressed="false">Dom / Fer</button>
+      </div>
+    </div>
+
+    <!-- ROUTE -->
+    <div class="pane">
+      <div class="eyebrow">Recorrido</div>
+      <div class="route-stack">
+        <div class="field">
+          <label for="orig">Origen</label>
+          <select id="orig"><option value="">Seleccioná estación…</option></select>
+        </div>
+        <div class="swap-row">
+          <div class="swap-rule"></div>
+          <button class="swap-btn" id="swap" aria-label="Intercambiar origen y destino" title="Intercambiar">
+            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 2v10M3 12l-2-2M3 12l2-2M11 12V2M11 2l-2 2M11 2l2 2"/></svg>
+          </button>
+          <div class="swap-rule"></div>
+        </div>
+        <div class="field">
+          <label for="dest">Destino</label>
+          <select id="dest"><option value="">Seleccioná estación…</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIME -->
+    <div class="pane">
+      <div class="eyebrow">Hora de salida</div>
+      <div class="time-row">
+        <div class="field">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
+            <label for="ttime" style="margin-bottom:0">Hora</label>
+            <button class="btn-now" id="now-btn" aria-label="Usar hora actual">⏱ Ahora</button>
+          </div>
+          <input type="time" id="ttime"/>
+        </div>
+        <button class="btn" id="go" aria-label="Buscar próximos trenes">BUSCAR</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="pane" id="results" aria-live="polite" aria-label="Resultados">
+      <div class="results-empty">
+        <span class="icon" aria-hidden="true">🚉</span>
+        <p>Elegí origen, destino y hora,<br>o hacé clic en el mapa.</p>
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="pane" style="margin-top:auto">
+      <div class="info-box" role="note">
+        Horarios vigentes desde el <strong>2 de marzo 2026</strong>.<br>
+        Verificá en <strong>metrovias.com.ar</strong> · <strong>0800-555-1616</strong>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT: MAP -->
+  <section class="map-col" aria-label="Mapa de la línea Urquiza">
+    <div class="map-heading">LÍNEA URQUIZA</div>
+    <div class="map-sub">Ramal B · General Lemos ↔ Federico Lacroze · 23 estaciones · ~49 min</div>
+    <div class="map-hint">Hacé clic en cualquier estación para seleccionarla como origen o destino.</div>
+
+    <div class="map-wrap">
+      <div class="smap" id="smap" role="list" aria-label="Estaciones de la Línea Urquiza"></div>
+    </div>
+
+    <div class="legend" aria-label="Referencias">
+      <div class="leg"><div class="leg-dot" style="background:var(--teal)" aria-hidden="true"></div>Origen</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--accent)" aria-hidden="true"></div>Destino</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--teal-xlight);border:2px solid var(--teal)" aria-hidden="true"></div>En ruta</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--ink)" aria-hidden="true"></div>Terminal</div>
+    </div>
+  </section>
+
+</div>
+
+<footer role="contentinfo">
+  Basado en el <strong>Horario Mural Invierno 2026</strong> de <strong>Metrovías</strong> · Gobierno de la Provincia de Buenos Aires
+</footer>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const ST = [
+  "General Lemos","Sargento Cabral","Campo de Mayo","Teniente Agneta",
+  "Capitán Lozano","Sargento Benedicto","Juan E. de la Salle",
+  "Ejército de los Andes","Rubén Darío","Jorge Newbery","Pedro Podestá",
+  "Martín Coronado","José M. Bosch","Tropezón","Lourdes",
+  "Fernández Moreno","General S. Lynch","Antonio Devoto","El Libertador",
+  "Doctor A. Ilaro","Pedro N. Arata","José Artigas","Federico Lacroze"
+];
+
+// Cumulative travel minutes from index 0 (General Lemos)
+const TM = [0,2,5,7,9,11,14,17,19,22,25,27,30,32,34,36,38,40,42,44,45,47,49];
+
+// Departures from General Lemos (→ Lacroze)
+const DL = {
+  weekday:[
+    "00:10","00:30","00:55","03:35","04:15","04:40",
+    "05:00","05:15","05:30","05:45",
+    "06:00","06:10","06:20","06:30","06:40","06:50",
+    "07:00","07:10","07:20","07:30","07:40","07:50",
+    "08:00","08:10","08:20","08:30","08:45",
+    "09:00","09:15","09:30","09:45",
+    "10:00","10:15","10:30","10:45",
+    "11:00","11:15","11:30","11:45",
+    "12:00","12:15","12:30","12:45",
+    "13:00","13:15","13:30","13:45",
+    "14:00","14:15","14:30","14:45",
+    "15:00","15:15","15:30","15:45",
+    "16:00","16:10","16:20","16:30","16:40","16:50",
+    "17:00","17:10","17:20","17:30","17:40","17:50",
+    "18:00","18:10","18:20","18:30","18:45",
+    "19:00","19:15","19:30","19:45",
+    "20:00","20:15","20:30","20:45",
+    "21:00","21:20","21:40",
+    "22:00","22:20","22:40",
+    "23:00","23:30"
+  ],
+  saturday:[
+    "00:10","00:40","03:40","04:20","04:50",
+    "05:10","05:40","06:10","06:40",
+    "07:10","07:40","08:10","08:40",
+    "09:10","09:40","10:10","10:40",
+    "11:10","11:40","12:10","12:40",
+    "13:10","13:40","14:10","14:40",
+    "15:10","15:40","16:10","16:40",
+    "17:10","17:40","18:10","18:40",
+    "19:10","19:40","20:10","20:40",
+    "21:10","21:40","22:10","22:40","23:20"
+  ],
+  sunday:[
+    "00:10","00:55","04:35","05:25",
+    "06:15","07:05","07:55","08:45","09:35",
+    "10:25","11:15","12:05","12:55","13:45",
+    "14:35","15:25","16:15","17:05","17:55",
+    "18:45","19:35","20:25","21:15","22:05","22:55"
+  ]
+};
+
+// Departures from Federico Lacroze (→ Lemos)
+const DLC = {
+  weekday:[
+    "00:05","00:25","00:50","03:30","04:10","04:35","04:55",
+    "05:10","05:25","05:40","05:55",
+    "06:05","06:15","06:25","06:35","06:45","06:55",
+    "07:05","07:15","07:25","07:35","07:45","07:55",
+    "08:05","08:15","08:25","08:40","08:55",
+    "09:10","09:25","09:40","09:55",
+    "10:10","10:25","10:40","10:55",
+    "11:10","11:25","11:40","11:55",
+    "12:10","12:25","12:40","12:55",
+    "13:10","13:25","13:40","13:55",
+    "14:10","14:25","14:40","14:55",
+    "15:10","15:25","15:40","15:55",
+    "16:05","16:15","16:25","16:35","16:45","16:55",
+    "17:05","17:15","17:25","17:35","17:45","17:55",
+    "18:05","18:15","18:25","18:40","18:55",
+    "19:10","19:25","19:40","19:55",
+    "20:10","20:25","20:40","20:55",
+    "21:10","21:30","21:50",
+    "22:10","22:30","22:50",
+    "23:10","23:40"
+  ],
+  saturday:[
+    "00:05","00:35","03:35","04:15","04:45",
+    "05:05","05:35","06:05","06:35",
+    "07:05","07:35","08:05","08:35",
+    "09:05","09:35","10:05","10:35",
+    "11:05","11:35","12:05","12:35",
+    "13:05","13:35","14:05","14:35",
+    "15:05","15:35","16:05","16:35",
+    "17:05","17:35","18:05","18:35",
+    "19:05","19:35","20:05","20:35",
+    "21:05","21:35","22:05","22:35","23:05"
+  ],
+  sunday:[
+    "00:05","00:50","04:25","05:15",
+    "06:05","06:55","07:45","08:35","09:25",
+    "10:15","11:05","11:55","12:45","13:35",
+    "14:25","15:15","16:05","16:55","17:45",
+    "18:35","19:25","20:15","21:05","21:55","22:45"
+  ]
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const S = { day:'weekday', orig:null, dest:null };
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const toM = t => { const[h,m]=t.split(':').map(Number); return h*60+m; };
+const fmM = n => { n=((n%1440)+1440)%1440; return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; };
+const nowStr = () => { const d=new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+
+function waitBadge(diff){
+  if(diff<=1) return {t:'Ahora',c:'now'};
+  if(diff<8)  return {t:`${diff} min`,c:'soon'};
+  if(diff<60) return {t:`${diff} min`,c:'ok'};
+  const h=Math.floor(diff/60),m=diff%60;
+  return {t:m?`${h}h ${m}m`:`${h}h`,c:'ok'};
+}
+
+// ── CLOCK ─────────────────────────────────────────────────────────────────────
+function tick(){
+  const d=new Date();
+  document.getElementById('clock').textContent=
+    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  document.getElementById('dateline').textContent=
+    `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// ── SELECTS ───────────────────────────────────────────────────────────────────
+function populateSelects(){
+  ['orig','dest'].forEach(id=>{
+    const s=document.getElementById(id);
+    ST.forEach((n,i)=>s.add(new Option(n,i)));
+  });
+}
+
+// ── MAP ───────────────────────────────────────────────────────────────────────
+function renderMap(){
+  const o=S.orig, d=S.dest;
+  const hasRoute = o!==null && d!==null && o!==d;
+  const minR = hasRoute?Math.min(o,d):-1;
+  const maxR = hasRoute?Math.max(o,d):-1;
+  const ROW_H = 36; // must match min-height
+
+  const map=document.getElementById('smap');
+  map.innerHTML='';
+
+  ST.forEach((name,i)=>{
+    // Teal rail overlay segment (sits on top of ::before gray line)
+    if(i>0){
+      const seg=document.createElement('div');
+      seg.className='seg'+(hasRoute&&i>minR&&i<=maxR?' show':'');
+      seg.style.cssText=`top:${(i-1)*ROW_H+18}px;height:${ROW_H}px;`;
+      seg.setAttribute('aria-hidden','true');
+      map.appendChild(seg);
+    }
+
+    const row=document.createElement('div');
+    row.className='srow';
+    row.setAttribute('role','listitem button');
+    row.setAttribute('tabindex','0');
+    row.setAttribute('aria-label',name+(i===o?' (Origen)':i===d?' (Destino)':''));
+
+    const isT=i===0||i===ST.length-1;
+    const dot=document.createElement('div');
+    dot.className='sdot'+
+      (isT?' terminal':'')+
+      (!isT&&hasRoute&&i>minR&&i<maxR?' route':'')+
+      (hasRoute&&i===o?' origin':'')+
+      (hasRoute&&i===d?' dest':'');
+    dot.setAttribute('aria-hidden','true');
+
+    const label=document.createElement('span');
+    label.className='sname'+
+      (hasRoute&&i>minR&&i<maxR?' route':'')+
+      (hasRoute&&i===o?' origin':'')+
+      (hasRoute&&i===d?' dest':'');
+    label.textContent=name;
+
+    if(hasRoute&&i===o){
+      const t=document.createElement('span');t.className='stag o';t.textContent='Origen';t.setAttribute('aria-hidden','true');
+      label.appendChild(t);
+    } else if(hasRoute&&i===d){
+      const t=document.createElement('span');t.className='stag d';t.textContent='Destino';t.setAttribute('aria-hidden','true');
+      label.appendChild(t);
+    }
+
+    row.appendChild(dot);row.appendChild(label);
+    map.appendChild(row);
+
+    function pick(){
+      const os=document.getElementById('orig');
+      const ds=document.getElementById('dest');
+      // First click → set origin; second click → set dest
+      if(os.value===''||(os.value!==''&&ds.value!=='')){
+        os.value=i; ds.value='';
+        S.orig=i; S.dest=null;
+      } else {
+        if(parseInt(os.value)===i){ os.value=''; S.orig=null; }
+        else { ds.value=i; S.dest=i; }
+      }
+      syncFromSelects();
+    }
+    row.addEventListener('click',pick);
+    row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
+  });
+}
+
+function syncFromSelects(){
+  const ov=document.getElementById('orig').value;
+  const dv=document.getElementById('dest').value;
+  S.orig=ov===''?null:parseInt(ov);
+  S.dest=dv===''?null:parseInt(dv);
+  renderMap();
+  if(S.orig!==null&&S.dest!==null) doSearch();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+function doSearch(){
+  const o=S.orig, d=S.dest;
+  const panel=document.getElementById('results');
+
+  if(o===null||d===null){
+    panel.innerHTML='<div class="results-empty"><span class="icon" aria-hidden="true">🗺</span><p>Seleccioná origen y destino.</p></div>';
+    return;
+  }
+  if(o===d){
+    panel.innerHTML='<div class="results-empty"><p>Origen y destino deben ser diferentes.</p></div>';
+    return;
+  }
+
+  const toLacroze = o<d;
+  const deps = toLacroze ? DL[S.day] : DLC[S.day];
+  const mO   = TM[toLacroze ? o : (ST.length-1-o)];
+  const mD   = TM[toLacroze ? d : (ST.length-1-d)];
+  const tval = document.getElementById('ttime').value || nowStr();
+  const req  = toM(tval);
+  const now  = toM(nowStr());
+
+  const trains = deps
+    .map(t=>{ const b=toM(t); return {depO:b+mO, arrD:b+mD, dur:mD-mO}; })
+    .filter(t=>t.depO>=req)
+    .slice(0,6);
+
+  if(!trains.length){
+    panel.innerHTML='<div class="no-trains" role="alert">🚫 No hay más trenes en ese horario.<br>El servicio reinicia a la madrugada.</div>';
+    return;
+  }
+
+  const dir=toLacroze?'→ Federico Lacroze':'→ General Lemos';
+
+  const html=trains.map((t,i)=>{
+    const isN=i===0;
+    const w=waitBadge(t.depO-now);
+    return `<div class="card${isN?' next':''}" role="listitem"
+      aria-label="${isN?'Próximo tren. ':''}Sale a las ${fmM(t.depO)} de ${ST[o]}, llega ${fmM(t.arrD)} a ${ST[d]}">
+      <div class="dep" aria-hidden="true">${fmM(t.depO)}</div>
+      <div class="meta">
+        ${isN?'<div class="next-lozenge" aria-hidden="true">Próximo</div>':''}
+        <div class="arr">Llega <strong>${fmM(t.arrD)}</strong> a ${ST[d]}</div>
+        <div class="dir">${dir} · ${t.dur} min</div>
+      </div>
+      <div class="wait">
+        <div class="wait-num ${w.c}" aria-label="Tiempo de espera: ${w.t}">${w.t}</div>
+        <small class="wait-lbl">espera</small>
+      </div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML=`
+    <div class="results-top">
+      <div class="results-heading">PRÓXIMOS TRENES</div>
+      <div class="results-route">${ST[o]} → ${ST[d]}</div>
+    </div>
+    <div class="cards" role="list">${html}</div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  populateSelects();
+  tick(); setInterval(tick,1000);
+  document.getElementById('ttime').value=nowStr();
+
+  // Auto day
+  const wd=new Date().getDay();
+  const auto=wd===0?'sunday':wd===6?'saturday':'weekday';
+  S.day=auto;
+  document.querySelectorAll('.pill').forEach(b=>{
+    const on=b.dataset.day===auto;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-pressed',String(on));
+  });
+
+  renderMap();
+
+  // Day pills
+  document.querySelectorAll('.pill').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.day=b.dataset.day;
+      document.querySelectorAll('.pill').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});
+      if(S.orig!==null&&S.dest!==null) doSearch();
+    });
+    b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();b.click();}});
+  });
+
+  // Selects
+  document.getElementById('orig').addEventListener('change',syncFromSelects);
+  document.getElementById('dest').addEventListener('change',syncFromSelects);
+
+  // Swap
+  document.getElementById('swap').addEventListener('click',()=>{
+    const os=document.getElementById('orig'), ds=document.getElementById('dest');
+    [os.value,ds.value]=[ds.value,os.value];
+    syncFromSelects();
+  });
+
+  // Now button
+  document.getElementById('now-btn').addEventListener('click',()=>{
+    document.getElementById('ttime').value=nowStr();
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+
+  // Time
+  document.getElementById('ttime').addEventListener('change',()=>{
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+
+  // Search
+  document.getElementById('go').addEventListener('click',doSearch);
+});
+</script>
+</body>
+</html>
