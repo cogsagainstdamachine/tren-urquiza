@@ -136,22 +136,25 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .time-row{display:flex;gap:.7rem;align-items:flex-end}
 .time-row .field{flex:1}
 .btn-now{
-  padding:.62rem .75rem;
+  width:100%;
+  padding:.62rem;
   background:transparent;
   border:1.5px solid var(--teal);
   border-radius:7px;
   color:var(--teal-dark);
   font-family:var(--font-body);
-  font-size:.75rem;font-weight:600;
+  font-size:.82rem;font-weight:600;
   letter-spacing:.4px;
   cursor:pointer;
   transition:all .15s;
-  white-space:nowrap;
-  display:inline-flex;align-items:center;gap:.3rem;
-  height:calc(1.5rem + 1.24rem + 2px);
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
 }
 .btn-now:hover{background:var(--teal);color:#fff}
 .btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
+
+.or-divider{display:flex;align-items:center;gap:.6rem;margin:.8rem 0}
+.or-line{flex:1;height:1px;background:var(--rule)}
+.or-label{font-size:.72rem;font-weight:600;color:var(--ink-light);letter-spacing:.5px;flex-shrink:0}
 .btn{
   padding:.62rem 1.1rem;background:var(--teal);color:#fff;
   font-family:var(--font-display);font-size:1.1rem;letter-spacing:2px;
@@ -348,16 +351,6 @@ footer strong{color:var(--teal)}
   <!-- LEFT: CONTROLS + RESULTS -->
   <aside class="left-col" aria-label="Planificador de viaje">
 
-    <!-- DAY -->
-    <div class="pane">
-      <div class="eyebrow">Día</div>
-      <div class="pills" role="group" aria-label="Tipo de día">
-        <button class="pill" data-day="weekday" aria-pressed="false">Lun — Vie</button>
-        <button class="pill" data-day="saturday" aria-pressed="false">Sábado</button>
-        <button class="pill" data-day="sunday" aria-pressed="false">Dom / Fer</button>
-      </div>
-    </div>
-
     <!-- ROUTE -->
     <div class="pane">
       <div class="eyebrow">Recorrido</div>
@@ -380,15 +373,33 @@ footer strong{color:var(--teal)}
       </div>
     </div>
 
-    <!-- TIME -->
+    <!-- TIME + DAY -->
     <div class="pane">
       <div class="eyebrow">Hora de salida</div>
+
+      <!-- 1. Ahora button — full width -->
+      <button class="btn-now" id="now-btn" aria-label="Usar hora y día actual">⏱ Ahora</button>
+
+      <!-- Divider -->
+      <div class="or-divider" aria-hidden="true">
+        <span class="or-line"></span>
+        <span class="or-label">o</span>
+        <span class="or-line"></span>
+      </div>
+
+      <!-- 2. Day pills -->
+      <div class="pills" role="group" aria-label="Tipo de día" style="margin-bottom:.7rem">
+        <button class="pill" data-day="weekday" aria-pressed="false">Lun — Vie</button>
+        <button class="pill" data-day="saturday" aria-pressed="false">Sábado</button>
+        <button class="pill" data-day="sunday" aria-pressed="false">Dom / Fer</button>
+      </div>
+
+      <!-- 3. Time input + Buscar -->
       <div class="time-row">
         <div class="field">
           <label for="ttime">Hora</label>
           <input type="time" id="ttime"/>
         </div>
-        <button class="btn-now" id="now-btn" aria-label="Usar hora actual">⏱ Ahora</button>
         <button class="btn" id="go" aria-label="Buscar próximos trenes">BUSCAR</button>
       </div>
     </div>
@@ -720,12 +731,12 @@ function doSearch(){
 document.addEventListener('DOMContentLoaded',()=>{
   populateSelects();
   tick(); setInterval(tick,1000);
-  document.getElementById('ttime').value=nowStr();
 
-  // Auto day
+  // Pre-fill current time and auto-select today's day
   const wd=new Date().getDay();
   const auto=wd===0?'sunday':wd===6?'saturday':'weekday';
   S.day=auto;
+  document.getElementById('ttime').value=nowStr();
   document.querySelectorAll('.pill').forEach(b=>{
     const on=b.dataset.day===auto;
     b.classList.toggle('on',on);
@@ -733,6 +744,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 
   renderMap();
+
+  // Ahora button — snap time and day to right now, re-search
+  document.getElementById('now-btn').addEventListener('click',()=>{
+    const wd=new Date().getDay();
+    const auto=wd===0?'sunday':wd===6?'saturday':'weekday';
+    S.day=auto;
+    document.getElementById('ttime').value=nowStr();
+    document.querySelectorAll('.pill').forEach(b=>{
+      const on=b.dataset.day===auto;
+      b.classList.toggle('on',on);
+      b.setAttribute('aria-pressed',String(on));
+    });
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
 
   // Day pills
   document.querySelectorAll('.pill').forEach(b=>{
@@ -755,18 +780,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     syncFromSelects();
   });
 
-  // Now button
-  document.getElementById('now-btn').addEventListener('click',()=>{
-    document.getElementById('ttime').value=nowStr();
-    if(S.orig!==null&&S.dest!==null) doSearch();
-  });
-
-  // Time
+  // Time input
   document.getElementById('ttime').addEventListener('change',()=>{
     if(S.orig!==null&&S.dest!==null) doSearch();
   });
 
-  // Search
+  // Search button
   document.getElementById('go').addEventListener('click',doSearch);
 });
 </script>
