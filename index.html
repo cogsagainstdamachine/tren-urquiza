@@ -375,7 +375,7 @@ footer strong{color:var(--teal)}
 
     <!-- TIME + DAY -->
     <div class="pane">
-      <div class="eyebrow">Hora y Fecha de salida</div>
+      <div class="eyebrow">Hora de salida</div>
 
       <!-- 1. Ahora button — full width -->
       <button class="btn-now" id="now-btn" aria-label="Usar hora y día actual">⏱ Ahora</button>
@@ -552,12 +552,13 @@ const DLC = {
 };
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-const S = { day:'weekday', orig:null, dest:null };
+const S = { day:'weekday', orig:null, dest:null, isNow:true };
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 const toM = t => { const[h,m]=t.split(':').map(Number); return h*60+m; };
 const fmM = n => { n=((n%1440)+1440)%1440; return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; };
 const nowStr = () => { const d=new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const realDay = () => { const d=new Date().getDay(); return d===0?'sunday':d===6?'saturday':'weekday'; };
 
 function waitBadge(diff){
   if(diff<=1) return {t:'Ahora',c:'now'};
@@ -700,10 +701,11 @@ function doSearch(){
   }
 
   const dir=toLacroze?'→ Federico Lacroze':'→ General Lemos';
+  const showWait = S.isNow;
 
   const html=trains.map((t,i)=>{
     const isN=i===0;
-    const w=waitBadge(t.depO-now);
+    const w=showWait ? waitBadge(t.depO-now) : null;
     return `<div class="card${isN?' next':''}" role="listitem"
       aria-label="${isN?'Próximo tren. ':''}Sale a las ${fmM(t.depO)} de ${ST[o]}, llega ${fmM(t.arrD)} a ${ST[d]}">
       <div class="dep" aria-hidden="true">${fmM(t.depO)}</div>
@@ -712,10 +714,10 @@ function doSearch(){
         <div class="arr">Llega <strong>${fmM(t.arrD)}</strong> a ${ST[d]}</div>
         <div class="dir">${dir} · ${t.dur} min</div>
       </div>
-      <div class="wait">
+      ${showWait ? `<div class="wait">
         <div class="wait-num ${w.c}" aria-label="Tiempo de espera: ${w.t}">${w.t}</div>
         <small class="wait-lbl">espera</small>
-      </div>
+      </div>` : '<div></div>'}
     </div>`;
   }).join('');
 
@@ -745,24 +747,24 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   renderMap();
 
-  // Ahora button — snap time and day to right now, re-search
+  // Ahora button — snap to real day+time, show wait times
   document.getElementById('now-btn').addEventListener('click',()=>{
-    const wd=new Date().getDay();
-    const auto=wd===0?'sunday':wd===6?'saturday':'weekday';
-    S.day=auto;
+    S.day=realDay();
+    S.isNow=true;
     document.getElementById('ttime').value=nowStr();
     document.querySelectorAll('.pill').forEach(b=>{
-      const on=b.dataset.day===auto;
+      const on=b.dataset.day===S.day;
       b.classList.toggle('on',on);
       b.setAttribute('aria-pressed',String(on));
     });
     if(S.orig!==null&&S.dest!==null) doSearch();
   });
 
-  // Day pills
+  // Day pills — manual selection, hide wait times
   document.querySelectorAll('.pill').forEach(b=>{
     b.addEventListener('click',()=>{
       S.day=b.dataset.day;
+      S.isNow=false;
       document.querySelectorAll('.pill').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});
       if(S.orig!==null&&S.dest!==null) doSearch();
     });
@@ -780,8 +782,9 @@ document.addEventListener('DOMContentLoaded',()=>{
     syncFromSelects();
   });
 
-  // Time input
+  // Time input — manual, hide wait times
   document.getElementById('ttime').addEventListener('change',()=>{
+    S.isNow=false;
     if(S.orig!==null&&S.dest!==null) doSearch();
   });
 
