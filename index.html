@@ -151,10 +151,6 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 }
 .btn-now:hover{background:var(--teal);color:#fff}
 .btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
-
-.or-divider{display:flex;align-items:center;gap:.6rem;margin:.8rem 0}
-.or-line{flex:1;height:1px;background:var(--rule)}
-.or-label{font-size:.72rem;font-weight:600;color:var(--ink-light);letter-spacing:.5px;flex-shrink:0}
 .btn{
   padding:.62rem 1.1rem;background:var(--teal);color:#fff;
   font-family:var(--font-display);font-size:1.1rem;letter-spacing:2px;
@@ -380,6 +376,146 @@ footer{
 .s1{animation:steam 2s ease-in-out infinite}
 .s2{animation:steam 2s ease-in-out infinite .4s}
 .s3{animation:steam 2s ease-in-out infinite .8s}
+/* ── DETAIL OVERLAY ── */
+.detail-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(11,31,46,.45);
+  display:flex;align-items:stretch;justify-content:flex-end;
+  animation:fadeOverlay .2s ease;
+}
+.detail-overlay[hidden]{display:none}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+
+.detail-panel{
+  width:min(560px,100vw);
+  background:var(--white);
+  display:flex;flex-direction:column;
+  box-shadow:-8px 0 40px rgba(0,0,0,.18);
+  animation:slideIn .25s cubic-bezier(.22,1,.36,1);
+  overflow:hidden;
+}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* DETAIL HEADER */
+.detail-header{
+  background:var(--ink);
+  padding:.85rem 1.2rem;
+  display:flex;align-items:center;gap:.8rem;
+  border-bottom:3px solid var(--teal);
+  flex-shrink:0;
+  flex-wrap:wrap;
+  gap:.6rem;
+}
+.detail-back{
+  display:flex;align-items:center;gap:.3rem;
+  background:transparent;border:1.5px solid rgba(255,255,255,.2);
+  border-radius:6px;padding:.35rem .7rem;
+  color:#aac8d4;font-family:var(--font-body);font-size:.75rem;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;
+}
+.detail-back:hover{background:rgba(255,255,255,.08);color:#fff}
+.detail-back:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
+.detail-title-wrap{flex:1;min-width:0}
+.detail-title{
+  font-family:var(--font-display);font-size:1.25rem;letter-spacing:1.5px;
+  color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.detail-subtitle{font-size:.65rem;color:#6a9aaa;margin-top:2px;letter-spacing:.4px}
+
+/* VIEW TOGGLE */
+.view-toggle{
+  display:flex;gap:2px;
+  background:rgba(255,255,255,.08);
+  border-radius:7px;padding:3px;flex-shrink:0;
+}
+.view-btn{
+  display:flex;align-items:center;gap:.35rem;
+  padding:.38rem .65rem;border:none;border-radius:5px;
+  background:transparent;color:#6a9aaa;
+  font-family:var(--font-body);font-size:.72rem;font-weight:600;letter-spacing:.3px;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.view-btn.active{background:var(--teal);color:#fff}
+.view-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
+
+/* DETAIL BODY */
+.detail-body{flex:1;overflow-y:auto;overflow-x:hidden;position:relative}
+
+/* TIMELINE */
+.timeline-wrap{padding:1.5rem 1.8rem;position:relative}
+.timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:2.5rem}
+
+/* continuous rail */
+.timeline::before{
+  content:'';position:absolute;
+  left:calc(2.5rem + 10px);top:14px;bottom:14px;
+  width:4px;background:var(--rule);border-radius:4px;z-index:0;
+}
+
+.tl-row{
+  display:grid;grid-template-columns:auto 1fr;
+  align-items:center;gap:.9rem;
+  position:relative;z-index:2;min-height:52px;
+}
+
+/* segment overlay on rail */
+.tl-seg{
+  position:absolute;
+  left:calc(2.5rem + 10px);
+  width:4px;background:var(--teal);
+  z-index:1;transform:translateX(-50%);margin-left:2px;
+  pointer-events:none;
+}
+
+.tl-dot{
+  width:22px;height:22px;border-radius:50%;
+  border:2.5px solid var(--rule);background:var(--white);
+  flex-shrink:0;z-index:3;position:relative;transition:all .15s;
+}
+.tl-dot.origin{background:var(--teal);border-color:var(--teal-dark);width:26px;height:26px;margin-left:-2px;box-shadow:0 0 0 4px rgba(0,155,155,.15)}
+.tl-dot.dest{background:var(--accent);border-color:var(--accent);width:26px;height:26px;margin-left:-2px;box-shadow:0 0 0 4px rgba(224,90,32,.12)}
+.tl-dot.stop{background:var(--teal-xlight);border-color:var(--teal)}
+.tl-dot.skipped{opacity:.3}
+
+.tl-info{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;padding:.35rem 0}
+.tl-name{font-size:.85rem;font-weight:500;color:var(--ink-mid)}
+.tl-name.origin{font-weight:700;color:var(--teal-dark)}
+.tl-name.dest{font-weight:700;color:var(--accent)}
+.tl-name.skipped{color:var(--ink-light);font-weight:400;font-size:.78rem}
+.tl-time{
+  font-family:var(--font-display);font-size:1.05rem;letter-spacing:.5px;
+  color:var(--teal-dark);white-space:nowrap;
+}
+.tl-time.origin{color:var(--teal);font-size:1.2rem}
+.tl-time.dest{color:var(--accent);font-size:1.2rem}
+.tl-time.skipped{display:none}
+
+.tl-tag{
+  font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  padding:.1rem .4rem;border-radius:20px;margin-left:.4rem;
+}
+.tl-tag.o{background:var(--teal-xlight);color:var(--teal-dark)}
+.tl-tag.d{background:#fde5d8;color:var(--accent)}
+
+/* CANVAS MAP */
+#route-canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#route-canvas:active{cursor:grabbing}
+
+/* MAP ZOOM CONTROLS */
+.map-controls{
+  position:absolute;bottom:1rem;right:1rem;
+  display:flex;flex-direction:column;gap:.35rem;z-index:10;
+}
+.map-ctrl-btn{
+  width:34px;height:34px;
+  background:var(--white);border:1.5px solid var(--rule);
+  border-radius:7px;font-size:1.1rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-mid);box-shadow:0 2px 8px rgba(0,0,0,.1);
+  transition:all .15s;
+}
+.map-ctrl-btn:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+.map-ctrl-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
 </style>
 </head>
 <body>
@@ -438,26 +574,16 @@ footer{
 
     <!-- TIME + DAY -->
     <div class="pane">
-      <div class="eyebrow">Hora de salida</div>
+      <div class="eyebrow">Salida</div>
 
-      <!-- 1. Ahora button — full width -->
-      <button class="btn-now" id="now-btn" aria-label="Usar hora y día actual">⏱ Ahora</button>
-
-      <!-- Divider -->
-      <div class="or-divider" aria-hidden="true">
-        <span class="or-line"></span>
-        <span class="or-label">o</span>
-        <span class="or-line"></span>
-      </div>
-
-      <!-- 2. Day pills -->
+      <!-- Day pills -->
       <div class="pills" role="group" aria-label="Tipo de día" style="margin-bottom:.7rem">
         <button class="pill" data-day="weekday" aria-pressed="false">Lun — Vie</button>
         <button class="pill" data-day="saturday" aria-pressed="false">Sábado</button>
         <button class="pill" data-day="sunday" aria-pressed="false">Dom / Fer</button>
       </div>
 
-      <!-- 3. Time input + Buscar -->
+      <!-- Time input + Buscar -->
       <div class="time-row">
         <div class="field">
           <label for="ttime">Hora</label>
@@ -505,11 +631,58 @@ footer{
 
 </div>
 
-<footer role="contentinfo">
+<!-- ── DETAIL OVERLAY ── -->
+<div id="detail-overlay" class="detail-overlay" aria-modal="true" role="dialog" aria-label="Detalle del servicio" hidden>
+  <div class="detail-panel">
+
+    <!-- Header -->
+    <div class="detail-header">
+      <button class="detail-back" id="detail-back" aria-label="Volver a resultados">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Volver
+      </button>
+      <div class="detail-title-wrap">
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-subtitle" id="detail-subtitle"></div>
+      </div>
+      <!-- View toggle -->
+      <div class="view-toggle" role="group" aria-label="Vista">
+        <button class="view-btn active" id="vbtn-diagram" aria-pressed="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><path d="M4 2h8M4 7h8M4 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Diagrama
+        </button>
+        <button class="view-btn" id="vbtn-map" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3l4-2 4 2 4-2v10l-4 2-4-2-4 2V3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 1v10M10 3v10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Mapa
+        </button>
+      </div>
+    </div>
+
+    <!-- Diagram view -->
+    <div class="detail-body" id="view-diagram">
+      <div class="timeline-wrap">
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </div>
+
+    <!-- Map view -->
+    <div class="detail-body" id="view-map" style="display:none;padding:0;overflow:hidden">
+      <canvas id="route-canvas"></canvas>
+      <div class="map-controls">
+        <button class="map-ctrl-btn" id="zoom-in" aria-label="Acercar">+</button>
+        <button class="map-ctrl-btn" id="zoom-out" aria-label="Alejar">−</button>
+        <button class="map-ctrl-btn" id="zoom-reset" aria-label="Centrar ruta" title="Centrar">⊙</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
   <div class="footer-top">
     <div class="footer-support">
       <p class="footer-support-text">Este es un proyecto independiente y no oficial, no afiliado a Metrovías.<br>Si te resultó útil, ¡invitame un café!</p>
-      <a href='https://cafecito.app/martin-pastor' rel='noopener' target='_blank' aria-label='Invitame un café en cafecito.app' class="coffee-btn">
+      <a href='https://cafecito.app/trenurquiza' rel='noopener' target='_blank' aria-label='Invitame un café en cafecito.app' class="coffee-btn">
         <span class="coffee-icon">
           <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <!-- Steam wisps -->
@@ -797,8 +970,9 @@ function doSearch(){
   const html=trains.map((t,i)=>{
     const isN=i===0;
     const w=showWait ? waitBadge(t.depO-now) : null;
-    return `<div class="card${isN?' next':''}" role="listitem"
-      aria-label="${isN?'Próximo tren. ':''}Sale a las ${fmM(t.depO)} de ${ST[o]}, llega ${fmM(t.arrD)} a ${ST[d]}">
+    return `<div class="card${isN?' next':''}" role="listitem" tabindex="0" style="cursor:pointer"
+      aria-label="${isN?'Próximo tren. ':''}Sale a las ${fmM(t.depO)} de ${ST[o]}, llega ${fmM(t.arrD)} a ${ST[d]}. Hacé clic para ver detalle."
+      data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}">
       <div class="dep" aria-hidden="true">${fmM(t.depO)}</div>
       <div class="meta">
         ${isN?'<div class="next-lozenge" aria-hidden="true">Próximo</div>':''}
@@ -817,70 +991,666 @@ function doSearch(){
       <div class="results-heading">PRÓXIMOS TRENES</div>
       <div class="results-route">${ST[o]} → ${ST[d]}</div>
     </div>
-    <div class="cards" role="list">${html}</div>`;
+    <div class="cards" role="list">${html}</div>
+    <div style="font-size:.68rem;color:var(--ink-light);text-align:center;padding:.6rem 0 0;font-style:italic">Tocá un tren para ver el recorrido completo</div>`;
+
+  // Attach click listeners to cards
+  panel.querySelectorAll('.card').forEach(card=>{
+    const handler = ()=>{
+      openDetail({
+        depO: parseInt(card.dataset.dep),
+        arrD: parseInt(card.dataset.arr),
+        dur:  parseInt(card.dataset.dur)
+      });
+    };
+    card.addEventListener('click', handler);
+    card.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); handler(); }});
+  });
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',()=>{
-  populateSelects();
-  tick(); setInterval(tick,1000);
+// ── STATION COORDINATES (approximate, Buenos Aires GBA) ──────────────────────
+// [lng, lat] — real approximate positions along the Urquiza line
+const COORDS = [
+  [-58.7280, -34.5420], // General Lemos
+  [-58.7120, -34.5460], // Sargento Cabral
+  [-58.6950, -34.5490], // Campo de Mayo
+  [-58.6780, -34.5510], // Teniente Agneta
+  [-58.6610, -34.5530], // Capitán Lozano
+  [-58.6440, -34.5560], // Sargento Benedicto
+  [-58.6270, -34.5590], // Juan E. de la Salle
+  [-58.6100, -34.5610], // Ejército de los Andes
+  [-58.5940, -34.5630], // Rubén Darío
+  [-58.5780, -34.5650], // Jorge Newbery
+  [-58.5620, -34.5640], // Pedro Podestá
+  [-58.5460, -34.5630], // Martín Coronado
+  [-58.5310, -34.5620], // José M. Bosch
+  [-58.5160, -34.5610], // Tropezón
+  [-58.5010, -34.5600], // Lourdes
+  [-58.4870, -34.5590], // Fernández Moreno
+  [-58.4730, -34.5570], // General S. Lynch
+  [-58.4590, -34.5540], // Antonio Devoto
+  [-58.4460, -34.5510], // El Libertador
+  [-58.4340, -34.5490], // Doctor A. Ilaro
+  [-58.4220, -34.5470], // Pedro N. Arata
+  [-58.4110, -34.5450], // José Artigas
+  [-58.4000, -34.5430], // Federico Lacroze
+];
 
-  // Pre-fill current time and auto-select today's day
-  const wd=new Date().getDay();
-  const auto=wd===0?'sunday':wd===6?'saturday':'weekday';
-  S.day=auto;
-  document.getElementById('ttime').value=nowStr();
-  document.querySelectorAll('.pill').forEach(b=>{
-    const on=b.dataset.day===auto;
-    b.classList.toggle('on',on);
-    b.setAttribute('aria-pressed',String(on));
+// ── DETAIL VIEW ───────────────────────────────────────────────────────────────
+let activeDetail = null; // { depO, arrD, dur, orig, dest, toLacroze }
+
+function openDetail(trainData){
+  activeDetail = trainData;
+  const overlay = document.getElementById('detail-overlay');
+  const o = S.orig, d = S.dest;
+  const toLacroze = o < d;
+  const minR = Math.min(o,d), maxR = Math.max(o,d);
+
+  // Header
+  document.getElementById('detail-title').textContent =
+    `${fmM(trainData.depO)} → ${fmM(trainData.arrD)}`;
+  document.getElementById('detail-subtitle').textContent =
+    `${ST[o]} → ${ST[d]} · ${trainData.dur} min de viaje`;
+
+  // Build timeline
+  buildTimeline(trainData, o, d, toLacroze, minR, maxR);
+
+  // Show diagram view by default
+  switchView('diagram');
+
+  overlay.hidden = false;
+  document.getElementById('detail-back').focus();
+
+  // Trap scroll on body
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail(){
+  document.getElementById('detail-overlay').hidden = true;
+  document.body.style.overflow = '';
+  activeDetail = null;
+}
+
+function switchView(v){
+  const dBtn = document.getElementById('vbtn-diagram');
+  const mBtn = document.getElementById('vbtn-map');
+  const dView = document.getElementById('view-diagram');
+  const mView = document.getElementById('view-map');
+  if(v === 'diagram'){
+    dView.style.display = ''; mView.style.display = 'none';
+    dBtn.classList.add('active'); dBtn.setAttribute('aria-pressed','true');
+    mBtn.classList.remove('active'); mBtn.setAttribute('aria-pressed','false');
+  } else {
+    dView.style.display = 'none'; mView.style.display = '';
+    mBtn.classList.add('active'); mBtn.setAttribute('aria-pressed','true');
+    dBtn.classList.remove('active'); dBtn.setAttribute('aria-pressed','false');
+    // slight delay to ensure canvas is visible before drawing
+    requestAnimationFrame(()=>requestAnimationFrame(initCanvas));
+  }
+}
+
+// ── TIMELINE ─────────────────────────────────────────────────────────────────
+function buildTimeline(train, orig, dest, toLacroze, minR, maxR){
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  const ROW_H = 52;
+
+  // Build per-stop arrival times for ALL stations
+  // Travel time from base terminus to each station
+  const stopsInRange = [];
+  for(let i = minR; i <= maxR; i++){
+    const mFromBase = TM[toLacroze ? i : (ST.length-1-i)];
+    const mFromOrig = TM[toLacroze ? orig : (ST.length-1-orig)];
+    const arrAtI = train.depO + (mFromBase - mFromOrig);
+    stopsInRange.push({ idx: i, arr: arrAtI });
+  }
+
+  stopsInRange.forEach((stop, si) => {
+    // Teal segment above this row
+    if(si > 0){
+      const seg = document.createElement('div');
+      seg.className = 'tl-seg';
+      seg.style.cssText = `top:${(si-1)*ROW_H + 26}px;height:${ROW_H}px;`;
+      seg.setAttribute('aria-hidden','true');
+      tl.appendChild(seg);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+
+    const dot = document.createElement('div');
+    const isOrig = stop.idx === orig;
+    const isDest = stop.idx === dest;
+    dot.className = 'tl-dot' + (isOrig?' origin':isDest?' dest':' stop');
+    dot.setAttribute('aria-hidden','true');
+
+    const info = document.createElement('div');
+    info.className = 'tl-info';
+
+    const nameWrap = document.createElement('span');
+    nameWrap.className = 'tl-name' + (isOrig?' origin':isDest?' dest':'');
+    nameWrap.textContent = ST[stop.idx];
+
+    if(isOrig){
+      const tag = document.createElement('span');
+      tag.className='tl-tag o'; tag.textContent='Salida';
+      tag.setAttribute('aria-hidden','true');
+      nameWrap.appendChild(tag);
+    } else if(isDest){
+      const tag = document.createElement('span');
+      tag.className='tl-tag d'; tag.textContent='Llegada';
+      tag.setAttribute('aria-hidden','true');
+      nameWrap.appendChild(tag);
+    }
+
+    const timeEl = document.createElement('span');
+    timeEl.className = 'tl-time' + (isOrig?' origin':isDest?' dest':'');
+    timeEl.textContent = fmM(stop.arr);
+    timeEl.setAttribute('aria-label', `Llega a las ${fmM(stop.arr)}`);
+
+    info.appendChild(nameWrap);
+    info.appendChild(timeEl);
+    row.appendChild(dot);
+    row.appendChild(info);
+    tl.appendChild(row);
+  });
+}
+
+// ── CANVAS MAP ───────────────────────────────────────────────────────────────
+let cam = { x:0, y:0, scale:1 };
+let drag = { active:false, startX:0, startY:0, camX:0, camY:0 };
+let pinch = { active:false, startDist:0, startScale:1 };
+
+function latLngToPixel(lng, lat, baseScale){
+  // Simple equirectangular projection scaled to canvas
+  const LNG0 = -58.565, LAT0 = -34.553; // center of line
+  const PX_PER_DEG = 6000 * baseScale;
+  const x = (lng - LNG0) * PX_PER_DEG * Math.cos(LAT0 * Math.PI/180);
+  const y = -(lat - LAT0) * PX_PER_DEG;
+  return {x, y};
+}
+
+function initCanvas(){
+  const canvas = document.getElementById('route-canvas');
+  const container = document.getElementById('view-map');
+  canvas.width  = container.clientWidth  * devicePixelRatio;
+  canvas.height = container.clientHeight * devicePixelRatio;
+  canvas.style.width  = container.clientWidth + 'px';
+  canvas.style.height = container.clientHeight + 'px';
+
+  // Center on route
+  fitRoute();
+  drawCanvas();
+}
+
+function fitRoute(){
+  const canvas = document.getElementById('route-canvas');
+  const W = canvas.width / devicePixelRatio;
+  const H = canvas.height / devicePixelRatio;
+  const o = S.orig, d = S.dest;
+  const minR = Math.min(o,d), maxR = Math.max(o,d);
+
+  // Find bounding box of route stations
+  let minLng=Infinity, maxLng=-Infinity, minLat=Infinity, maxLat=-Infinity;
+  for(let i=minR; i<=maxR; i++){
+    minLng=Math.min(minLng, COORDS[i][0]);
+    maxLng=Math.max(maxLng, COORDS[i][0]);
+    minLat=Math.min(minLat, COORDS[i][1]);
+    maxLat=Math.max(maxLat, COORDS[i][1]);
+  }
+
+  const BASE = 1;
+  const pts = COORDS.map(([lng,lat])=>latLngToPixel(lng,lat,BASE));
+  const routePts = pts.filter((_,i)=>i>=minR&&i<=maxR);
+  const rx0=Math.min(...routePts.map(p=>p.x)), rx1=Math.max(...routePts.map(p=>p.x));
+  const ry0=Math.min(...routePts.map(p=>p.y)), ry1=Math.max(...routePts.map(p=>p.y));
+  const routeW = rx1-rx0 || 1, routeH = ry1-ry0 || 1;
+  const scale = Math.min((W-120)/routeW, (H-120)/routeH, 4);
+
+  cam.scale = scale;
+  cam.x = W/2 - scale*(rx0+routeW/2);
+  cam.y = H/2 - scale*(ry0+routeH/2);
+}
+
+function drawCanvas(){
+  const canvas = document.getElementById('route-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const DPR = devicePixelRatio;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.scale(DPR, DPR);
+  const CW = W/DPR, CH = H/DPR;
+
+  // ── World-to-screen transform ──────────────────────────────────────────────
+  function ws(lng, lat){
+    const p = latLngToPixel(lng, lat, 1);
+    return { x: p.x * cam.scale + cam.x, y: p.y * cam.scale + cam.y };
+  }
+
+  // ── 1. LAND BACKGROUND ────────────────────────────────────────────────────
+  ctx.fillStyle = '#e8eedc'; // Google's light land green-beige
+  ctx.fillRect(0, 0, CW, CH);
+
+  // ── 2. WATER BODIES ──────────────────────────────────────────────────────
+  // Río de la Plata (east of Lacroze) — large water body
+  const rioEdge = ws(-57.8, -34.40);
+  const rioFar  = ws(-57.2, -34.20);
+  ctx.fillStyle = '#b8d4e8';
+  ctx.beginPath();
+  ctx.moveTo(rioEdge.x, 0);
+  ctx.lineTo(CW + 200, 0);
+  ctx.lineTo(CW + 200, CH + 200);
+  ctx.lineTo(rioEdge.x, CH + 200);
+  ctx.closePath();
+  ctx.fill();
+
+  // ── 3. URBAN BLOCKS — procedural grid around the rail line ───────────────
+  // Generate a dense city block grid in the GBA area
+  // Block pattern: alternating residential (lighter) and slightly darker streets
+  const BLOCK_LNG = 0.004; // ~400m block width in degrees
+  const BLOCK_LAT = 0.003;
+  const AREA_LNG0 = -58.80, AREA_LNG1 = -57.90;
+  const AREA_LAT0 = -34.70, AREA_LAT1 = -34.40;
+
+  // Fill land with a very subtle block pattern
+  for(let lng = AREA_LNG0; lng < AREA_LNG1; lng += BLOCK_LNG){
+    for(let lat = AREA_LAT0; lat < AREA_LAT1; lat += BLOCK_LAT){
+      const p0 = ws(lng, lat);
+      const p1 = ws(lng + BLOCK_LNG, lat + BLOCK_LAT);
+      const bw = Math.abs(p1.x - p0.x), bh = Math.abs(p1.y - p0.y);
+      if(bw < 1 || bh < 1) continue; // skip if too small to see
+      // Checkerboard-ish subtle variation
+      const even = (Math.round(lng/BLOCK_LNG) + Math.round(lat/BLOCK_LAT)) % 2 === 0;
+      ctx.fillStyle = even ? '#edf2e0' : '#e8eedc';
+      ctx.fillRect(Math.min(p0.x,p1.x), Math.min(p0.y,p1.y), bw, bh);
+    }
+  }
+
+  // ── 4. PARKS / GREEN SPACES ───────────────────────────────────────────────
+  const parks = [
+    // [lng0, lat0, lng1, lat1] approximate bounding boxes
+    [-58.730, -34.530, -58.700, -34.555], // Campo de Mayo (large green)
+    [-58.720, -34.558, -58.695, -34.575],
+    [-58.560, -34.550, -58.540, -34.565], // Parque near Rubén Darío
+    [-58.490, -34.545, -58.475, -34.558],
+    [-58.445, -34.538, -58.430, -34.550],
+    [-58.415, -34.535, -58.405, -34.545],
+  ];
+  parks.forEach(([ln0,lt0,ln1,lt1])=>{
+    const p0=ws(ln0,lt0), p1=ws(ln1,lt1);
+    const pw=p1.x-p0.x, ph=p1.y-p0.y;
+    if(Math.abs(pw)<1||Math.abs(ph)<1) return;
+    ctx.fillStyle='#c8dba8'; // Google Maps park green
+    ctx.fillRect(Math.min(p0.x,p1.x), Math.min(p0.y,p1.y), Math.abs(pw), Math.abs(ph));
   });
 
+  // ── 5. STREET NETWORK ────────────────────────────────────────────────────
+  // Generate streets at different zoom levels based on cam.scale
+
+  // Helper to draw a road
+  function road(coords, width, color, dash=[]){
+    if(coords.length < 2) return;
+    const screenPts = coords.map(([ln,lt])=>ws(ln,lt));
+    // Cull if entirely off-screen
+    const onScreen = screenPts.some(p=>p.x>-50&&p.x<CW+50&&p.y>-50&&p.y<CH+50);
+    if(!onScreen) return;
+    ctx.beginPath();
+    screenPts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.strokeStyle=color;
+    ctx.lineWidth=width;
+    ctx.lineCap='round';
+    ctx.lineJoin='round';
+    ctx.setLineDash(dash);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ─ Autopistas / Expressways ─
+  const highways = [
+    // Acceso Oeste (rough path west of Lacroze)
+    [[-58.402,-34.620],[-58.420,-34.590],[-58.450,-34.565],[-58.480,-34.548],[-58.520,-34.540],[-58.560,-34.535],[-58.610,-34.528],[-58.660,-34.522],[-58.720,-34.518],[-58.760,-34.516]],
+    // Av. General Paz (north-south ring road, rough arc)
+    [[-58.400,-34.490],[-58.405,-34.510],[-58.408,-34.530],[-58.410,-34.553],[-58.412,-34.570],[-58.415,-34.590],[-58.420,-34.610]],
+    // Route 8 outbound
+    [[-58.430,-34.548],[-58.470,-34.540],[-58.520,-34.532],[-58.580,-34.525],[-58.640,-34.518],[-58.700,-34.512],[-58.750,-34.508]],
+  ];
+  highways.forEach(pts=>{
+    // Casing
+    road(pts, cam.scale>1?8:5, '#e8c97a');
+    // Surface
+    road(pts, cam.scale>1?5:3, '#f5d97a');
+  });
+
+  // ─ Avenidas principales ─
+  const avenues = [
+    // Av. Rivadavia (east-west major avenue)
+    [[-58.730,-34.560],[-58.700,-34.558],[-58.660,-34.555],[-58.620,-34.552],[-58.580,-34.550],[-58.540,-34.548],[-58.500,-34.546],[-58.460,-34.544],[-58.420,-34.542],[-58.400,-34.540]],
+    // Av. Triunvirato / Chorroarín
+    [[-58.730,-34.545],[-58.690,-34.543],[-58.650,-34.541],[-58.610,-34.540],[-58.570,-34.540],[-58.530,-34.541],[-58.490,-34.542],[-58.450,-34.543],[-58.420,-34.544],[-58.400,-34.543]],
+    // North-south avenue near Lynch
+    [[-58.473,-34.510],[-58.473,-34.530],[-58.473,-34.550],[-58.473,-34.570],[-58.473,-34.590]],
+    // Av. San Martín
+    [[-58.530,-34.510],[-58.530,-34.530],[-58.530,-34.555],[-58.530,-34.575],[-58.530,-34.600]],
+    // Av. de los Constituyentes
+    [[-58.730,-34.572],[-58.690,-34.570],[-58.650,-34.568],[-58.600,-34.566],[-58.560,-34.564],[-58.520,-34.563],[-58.480,-34.562],[-58.440,-34.561],[-58.410,-34.560]],
+  ];
+  avenues.forEach(pts=>{
+    road(pts, cam.scale>1?4:2.5, '#fff');
+    road(pts, cam.scale>1?3:1.5, '#f0ebe0');
+  });
+
+  // ─ Local streets (only show when zoomed in enough) ─
+  if(cam.scale > 1.2){
+    const streetSpacingLng = 0.008;
+    const streetSpacingLat = 0.006;
+    for(let ln=AREA_LNG0; ln<AREA_LNG1; ln+=streetSpacingLng){
+      road([[ln,AREA_LAT0],[ln,AREA_LAT1]], 0.8, 'rgba(255,255,255,0.7)');
+    }
+    for(let lt=AREA_LAT0; lt<AREA_LAT1; lt+=streetSpacingLat){
+      road([[AREA_LNG0,lt],[AREA_LNG1,lt]], 0.8, 'rgba(255,255,255,0.7)');
+    }
+  }
+
+  // ── 6. NEIGHBOURHOOD LABELS ───────────────────────────────────────────────
+  if(cam.scale > 0.8){
+    const barrios = [
+      { name:'Villa del Parque', lng:-58.488, lat:-34.616 },
+      { name:'Villa Urquiza',    lng:-58.490, lat:-34.575 },
+      { name:'Paternal',        lng:-58.464, lat:-34.608 },
+      { name:'Villa Pueyrredón',lng:-58.504, lat:-34.596 },
+      { name:'Palermo',         lng:-58.421, lat:-34.576 },
+      { name:'Flores',          lng:-58.464, lat:-34.634 },
+      { name:'Morón',           lng:-58.619, lat:-34.652 },
+      { name:'Haedo',           lng:-58.590, lat:-34.643 },
+      { name:'San Martín',      lng:-58.537, lat:-34.572 },
+      { name:'Villa Maipú',     lng:-58.557, lat:-34.569 },
+    ];
+    ctx.font = `500 ${Math.min(10, 7+cam.scale*0.5)}px 'DM Sans',sans-serif`;
+    ctx.fillStyle = 'rgba(100,130,120,0.55)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    barrios.forEach(b=>{
+      const p=ws(b.lng,b.lat);
+      if(p.x<-20||p.x>CW+20||p.y<-20||p.y>CH+20) return;
+      ctx.fillText(b.name.toUpperCase(), p.x, p.y);
+    });
+    ctx.textAlign = 'left';
+  }
+
+  // ── 7. SCALE BAR ──────────────────────────────────────────────────────────
+  {
+    // Compute approx km per pixel
+    const p0=ws(-58.565,-34.553), p1=ws(-58.565+0.1,-34.553);
+    const pxPer01deg=Math.abs(p1.x-p0.x);
+    const kmPer01deg=0.1*111.32*Math.cos(-34.553*Math.PI/180);
+    const pxPerKm=pxPer01deg/kmPer01deg;
+    const targetPx=80;
+    const km=targetPx/pxPerKm;
+    const niceKm=[0.1,0.2,0.5,1,2,5,10,20,50].reduce((a,b)=>Math.abs(b-km)<Math.abs(a-km)?b:a);
+    const barPx=niceKm*pxPerKm;
+    const bx=14, by=CH-22;
+    ctx.fillStyle='rgba(255,255,255,0.85)';
+    ctx.fillRect(bx-4,by-10,barPx+8,22);
+    ctx.strokeStyle='#888';
+    ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+barPx,by);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx,by-5);ctx.lineTo(bx,by+5);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(bx+barPx,by-5);ctx.lineTo(bx+barPx,by+5);ctx.stroke();
+    ctx.font='500 9px DM Sans,sans-serif';
+    ctx.fillStyle='#444';
+    ctx.textAlign='center';
+    ctx.textBaseline='bottom';
+    ctx.fillText(niceKm>=1?`${niceKm} km`:`${niceKm*1000} m`, bx+barPx/2, by-7);
+    ctx.textAlign='left';
+  }
+
+  // ── 8. FULL TRAIN LINE (faded) ────────────────────────────────────────────
+  const o = S.orig, d = S.dest;
+  if(o===null||d===null){ctx.restore();return;}
+  const minR=Math.min(o,d), maxR=Math.max(o,d);
+  const pts = COORDS.map(([lng,lat])=>ws(lng,lat));
+
+  // Rail casing (white border)
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='rgba(255,255,255,0.5)';
+  ctx.lineWidth=7; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+  // Rail body
+  ctx.beginPath();
+  pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle='rgba(0,155,155,0.18)';
+  ctx.lineWidth=4; ctx.stroke();
+
+  // ── 9. ACTIVE ROUTE ───────────────────────────────────────────────────────
+  // White casing
+  ctx.beginPath();
+  for(let i=minR;i<=maxR;i++) i===minR?ctx.moveTo(pts[i].x,pts[i].y):ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.strokeStyle='#fff'; ctx.lineWidth=9; ctx.stroke();
+  // Teal body
+  ctx.beginPath();
+  for(let i=minR;i<=maxR;i++) i===minR?ctx.moveTo(pts[i].x,pts[i].y):ctx.lineTo(pts[i].x,pts[i].y);
+  ctx.strokeStyle='#009b9b'; ctx.lineWidth=6; ctx.stroke();
+
+  // ── 10. STATION DOTS ──────────────────────────────────────────────────────
+  COORDS.forEach((_,i)=>{
+    const isOrig=i===o, isDest=i===d;
+    const isRoute=i>=minR&&i<=maxR&&!isOrig&&!isDest;
+    const r=(isOrig||isDest)?10:isRoute?5.5:3;
+    const p=pts[i];
+    // Shadow for origin/dest
+    if(isOrig||isDest){
+      ctx.beginPath();ctx.arc(p.x,p.y+1.5,r+2,0,Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,0.12)';ctx.fill();
+    }
+    // Outer ring
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);
+    ctx.fillStyle=isOrig?'#009b9b':isDest?'#e05a20':isRoute?'#fff':'rgba(180,200,195,0.5)';
+    ctx.strokeStyle=isOrig?'#fff':isDest?'#fff':isRoute?'#009b9b':'rgba(150,175,170,0.4)';
+    ctx.lineWidth=isRoute?2:isOrig||isDest?2.5:1;
+    ctx.fill();ctx.stroke();
+  });
+
+  // ── 11. LABELS ────────────────────────────────────────────────────────────
+  if(cam.scale > 0.4){
+    const fontSize = Math.min(12, Math.max(9, 8+cam.scale*0.6));
+    ctx.font = `600 ${fontSize}px 'DM Sans',sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+
+    for(let i=minR;i<=maxR;i++){
+      const isOrig=i===o, isDest=i===d;
+      const p=pts[i];
+      const name=ST[i];
+      const tw=ctx.measureText(name).width;
+      const pad=5, lh=fontSize+4;
+      const bx=p.x+14, by=p.y;
+
+      // Drop shadow
+      ctx.shadowColor='rgba(0,0,0,0.12)';
+      ctx.shadowBlur=4; ctx.shadowOffsetX=0; ctx.shadowOffsetY=1;
+
+      // Pill background
+      ctx.fillStyle=isOrig?'#009b9b':isDest?'#e05a20':'rgba(255,255,255,0.95)';
+      ctx.beginPath();
+      ctx.roundRect(bx-pad,by-lh/2,tw+pad*2,lh,4);
+      ctx.fill();
+
+      ctx.shadowColor='transparent'; ctx.shadowBlur=0;
+
+      // Border
+      ctx.strokeStyle=isOrig?'rgba(0,115,115,0.5)':isDest?'rgba(180,64,16,0.5)':'rgba(0,155,155,0.3)';
+      ctx.lineWidth=1;ctx.stroke();
+
+      // Text
+      ctx.fillStyle=isOrig||isDest?'#fff':'#1a3544';
+      ctx.fillText(name,bx,by);
+    }
+    ctx.shadowColor='transparent'; ctx.shadowBlur=0;
+  }
+
+  // ── 12. ATTRIBUTION ───────────────────────────────────────────────────────
+  ctx.font='400 9px DM Sans,sans-serif';
+  ctx.fillStyle='rgba(80,100,100,0.6)';
+  ctx.textAlign='right';
+  ctx.textBaseline='bottom';
+  ctx.fillText('Tren Urquiza © Metrovías', CW-8, CH-6);
+  ctx.textAlign='left';
+
+  ctx.restore();
+}
+
+// Pan & zoom
+function setupCanvasInteraction(){
+  const canvas = document.getElementById('route-canvas');
+
+  // Mouse drag
+  canvas.addEventListener('mousedown', e=>{
+    drag.active=true; drag.startX=e.clientX; drag.startY=e.clientY;
+    drag.camX=cam.x; drag.camY=cam.y;
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!drag.active) return;
+    cam.x = drag.camX + (e.clientX-drag.startX);
+    cam.y = drag.camY + (e.clientY-drag.startY);
+    drawCanvas();
+  });
+  window.addEventListener('mouseup', ()=>{ drag.active=false; });
+
+  // Scroll zoom
+  canvas.addEventListener('wheel', e=>{
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left), my=(e.clientY-rect.top);
+    const factor = e.deltaY < 0 ? 1.12 : 0.89;
+    cam.x = mx - (mx-cam.x)*factor;
+    cam.y = my - (my-cam.y)*factor;
+    cam.scale *= factor;
+    cam.scale = Math.max(0.15, Math.min(12, cam.scale));
+    drawCanvas();
+  },{passive:false});
+
+  // Touch pan
+  canvas.addEventListener('touchstart', e=>{
+    if(e.touches.length===1){
+      drag.active=true;
+      drag.startX=e.touches[0].clientX; drag.startY=e.touches[0].clientY;
+      drag.camX=cam.x; drag.camY=cam.y;
+    } else if(e.touches.length===2){
+      drag.active=false; pinch.active=true;
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      pinch.startDist=Math.hypot(dx,dy);
+      pinch.startScale=cam.scale;
+    }
+  },{passive:true});
+  canvas.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if(drag.active&&e.touches.length===1){
+      cam.x=drag.camX+(e.touches[0].clientX-drag.startX);
+      cam.y=drag.camY+(e.touches[0].clientY-drag.startY);
+      drawCanvas();
+    } else if(pinch.active&&e.touches.length===2){
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      const dist=Math.hypot(dx,dy);
+      cam.scale=Math.max(0.15,Math.min(12, pinch.startScale*(dist/pinch.startDist)));
+      drawCanvas();
+    }
+  },{passive:false});
+  canvas.addEventListener('touchend', ()=>{ drag.active=false; pinch.active=false; });
+
+  // Zoom buttons
+  document.getElementById('zoom-in').addEventListener('click',()=>{
+    const canvas=document.getElementById('route-canvas');
+    const cx=canvas.width/devicePixelRatio/2, cy=canvas.height/devicePixelRatio/2;
+    const f=1.25;
+    cam.x=cx-(cx-cam.x)*f; cam.y=cy-(cy-cam.y)*f;
+    cam.scale=Math.min(12,cam.scale*f);
+    drawCanvas();
+  });
+  document.getElementById('zoom-out').addEventListener('click',()=>{
+    const canvas=document.getElementById('route-canvas');
+    const cx=canvas.width/devicePixelRatio/2, cy=canvas.height/devicePixelRatio/2;
+    const f=0.8;
+    cam.x=cx-(cx-cam.x)*f; cam.y=cy-(cy-cam.y)*f;
+    cam.scale=Math.max(0.15,cam.scale*f);
+    drawCanvas();
+  });
+  document.getElementById('zoom-reset').addEventListener('click',()=>{ fitRoute(); drawCanvas(); });
+}
+
+
+
+function resetToNow(){
+  const auto = realDay();
+  S.day  = auto;
+  S.isNow = true;
+  document.getElementById('ttime').value = nowStr();
+  document.querySelectorAll('.pill').forEach(b=>{
+    const on = b.dataset.day === auto;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  populateSelects();
+  tick(); setInterval(tick, 1000);
+
+  // Set day + time to right now on every fresh page load
+  resetToNow();
   renderMap();
 
-  // Ahora button — snap to real day+time, show wait times
-  document.getElementById('now-btn').addEventListener('click',()=>{
-    S.day=realDay();
-    S.isNow=true;
-    document.getElementById('ttime').value=nowStr();
-    document.querySelectorAll('.pill').forEach(b=>{
-      const on=b.dataset.day===S.day;
-      b.classList.toggle('on',on);
-      b.setAttribute('aria-pressed',String(on));
-    });
-    if(S.orig!==null&&S.dest!==null) doSearch();
+  // Re-sync when user returns to the tab (e.g. comes back after being away)
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState === 'visible'){
+      resetToNow();
+      if(S.orig !== null && S.dest !== null) doSearch();
+    }
   });
 
   // Day pills — manual selection, hide wait times
   document.querySelectorAll('.pill').forEach(b=>{
     b.addEventListener('click',()=>{
-      S.day=b.dataset.day;
-      S.isNow=false;
+      S.day = b.dataset.day;
+      S.isNow = false;
       document.querySelectorAll('.pill').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',String(x===b));});
-      if(S.orig!==null&&S.dest!==null) doSearch();
+      if(S.orig !== null && S.dest !== null) doSearch();
     });
     b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();b.click();}});
   });
 
   // Selects
-  document.getElementById('orig').addEventListener('change',syncFromSelects);
-  document.getElementById('dest').addEventListener('change',syncFromSelects);
+  document.getElementById('orig').addEventListener('change', syncFromSelects);
+  document.getElementById('dest').addEventListener('change', syncFromSelects);
 
   // Swap
   document.getElementById('swap').addEventListener('click',()=>{
     const os=document.getElementById('orig'), ds=document.getElementById('dest');
-    [os.value,ds.value]=[ds.value,os.value];
+    [os.value, ds.value] = [ds.value, os.value];
     syncFromSelects();
   });
 
-  // Time input — manual, hide wait times
+  // Time input — manual change, hide wait times
   document.getElementById('ttime').addEventListener('change',()=>{
-    S.isNow=false;
-    if(S.orig!==null&&S.dest!==null) doSearch();
+    S.isNow = false;
+    if(S.orig !== null && S.dest !== null) doSearch();
   });
 
+  // Detail overlay controls
+  document.getElementById('detail-back').addEventListener('click', closeDetail);
+  document.getElementById('detail-overlay').addEventListener('click', e=>{
+    if(e.target===document.getElementById('detail-overlay')) closeDetail();
+  });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
+  document.getElementById('vbtn-diagram').addEventListener('click',()=>switchView('diagram'));
+  document.getElementById('vbtn-map').addEventListener('click',()=>switchView('map'));
+  setupCanvasInteraction();
+
   // Search button
-  document.getElementById('go').addEventListener('click',doSearch);
+  document.getElementById('go').addEventListener('click', doSearch);
 });
 </script>
 </body>
