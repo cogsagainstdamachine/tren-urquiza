@@ -535,7 +535,7 @@ footer{
     </div>
     <div class="brand">
       <div class="brand-name">Tren Urquiza</div>
-      <div class="brand-sub">Pcia. de Buenos Aires · Metrovías</div>
+      <div class="brand-sub">Pcia. de Buenos Aires · <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.3)">Metrovías</a></div>
     </div>
   </div>
   <div class="topbar-right">
@@ -605,7 +605,7 @@ footer{
     <div class="pane" style="margin-top:auto">
       <div class="info-box" role="note">
         Horarios vigentes desde el <strong>2 de marzo 2026</strong>.<br>
-        Verificá en <strong>metrovias.com.ar</strong> · <strong>0800-555-1616</strong>
+        Verificá en <strong><a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit">metrovias.com.ar</a></strong> · <strong>0800-555-1616</strong>
       </div>
     </div>
 
@@ -651,7 +651,7 @@ footer{
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="2" cy="2" r="1.5" fill="currentColor"/><circle cx="2" cy="7" r="1.5" fill="currentColor"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><path d="M4 2h8M4 7h8M4 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           Diagrama
         </button>
-        <button class="view-btn" id="vbtn-map" aria-pressed="false">
+        <button class="view-btn" id="vbtn-map" aria-pressed="false" style="display:none">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3l4-2 4 2 4-2v10l-4 2-4-2-4 2V3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 1v10M10 3v10" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
           Mapa
         </button>
@@ -666,6 +666,7 @@ footer{
     </div>
 
     <!-- Map view -->
+    <!-- MAP VIEW TEMPORARILY HIDDEN
     <div class="detail-body" id="view-map" style="display:none;padding:0;overflow:hidden;position:relative">
       <canvas id="route-canvas"></canvas>
       <div class="map-controls">
@@ -674,6 +675,7 @@ footer{
         <button class="map-ctrl-btn" id="zoom-reset" aria-label="Centrar ruta" title="Centrar">⊙</button>
       </div>
     </div>
+    -->
 
   </div>
 </div>
@@ -681,7 +683,7 @@ footer{
 
   <div class="footer-top">
     <div class="footer-support">
-      <p class="footer-support-text">Este es un proyecto independiente y no oficial, no afiliado a Metrovías.<br>Si te resultó útil, ¡invitame un café!</p>
+      <p class="footer-support-text">Este es un proyecto independiente y no oficial, no afiliado a <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Metrovías</a>.<br>Si te resultó útil, ¡invitame un café!</p>
       <a href='https://cafecito.app/martin-pastor' rel='noopener' target='_blank' aria-label='Invitame un café en cafecito.app' class="coffee-btn">
         <span class="coffee-icon">
           <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -704,7 +706,7 @@ footer{
     </div>
   </div>
   <div class="footer-bottom">
-    <span>Basado en el <strong>Horario Mural Invierno 2026</strong> de <strong>Metrovías</strong> · Gobierno de la Provincia de Buenos Aires</span>
+    <span>Basado en el <a href="https://metrovias.com.ar/wp-content/uploads/2026/02/Horarios-Mural_-invierno-2026-curvas.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline"><strong>Horario Mural Invierno 2026</strong></a> de <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline"><strong>Metrovías</strong></a> · Gobierno de la Provincia de Buenos Aires</span>
     <span class="footer-divider">·</span>
     <span>Hecho por <a href="https://martin-pastor.com" target="_blank" rel="noopener" class="footer-link">Martin Pastor</a></span>
   </div>
@@ -1011,29 +1013,29 @@ function doSearch(){
 // ── STATION COORDINATES (approximate, Buenos Aires GBA) ──────────────────────
 // [lng, lat] — real approximate positions along the Urquiza line
 const COORDS = [
-  [-58.7280, -34.5420], // General Lemos
-  [-58.7120, -34.5460], // Sargento Cabral
-  [-58.6950, -34.5490], // Campo de Mayo
-  [-58.6780, -34.5510], // Teniente Agneta
-  [-58.6610, -34.5530], // Capitán Lozano
-  [-58.6440, -34.5560], // Sargento Benedicto
-  [-58.6270, -34.5590], // Juan E. de la Salle
-  [-58.6100, -34.5610], // Ejército de los Andes
-  [-58.5940, -34.5630], // Rubén Darío
-  [-58.5780, -34.5650], // Jorge Newbery
-  [-58.5620, -34.5640], // Pedro Podestá
-  [-58.5460, -34.5630], // Martín Coronado
-  [-58.5310, -34.5620], // José M. Bosch
-  [-58.5160, -34.5610], // Tropezón
-  [-58.5010, -34.5600], // Lourdes
-  [-58.4870, -34.5590], // Fernández Moreno
-  [-58.4730, -34.5570], // General S. Lynch
-  [-58.4590, -34.5540], // Antonio Devoto
-  [-58.4460, -34.5510], // El Libertador
-  [-58.4340, -34.5490], // Doctor A. Ilaro
-  [-58.4220, -34.5470], // Pedro N. Arata
-  [-58.4110, -34.5450], // José Artigas
-  [-58.4000, -34.5430], // Federico Lacroze
+  [-58.72683, -34.54279], // General Lemos
+  [-58.71155, -34.54621], // Sargento Cabral
+  [-58.69826, -34.54855], // Campo de Mayo
+  [-58.68354, -34.55133], // Teniente Agneta
+  [-58.66930, -34.55381], // Capitán Lozano
+  [-58.65492, -34.55601], // Sargento Benedicto
+  [-58.64060, -34.55800], // Juan E. de la Salle
+  [-58.62615, -34.55968], // Ejército de los Andes
+  [-58.61188, -34.56105], // Rubén Darío
+  [-58.59763, -34.56208], // Jorge Newbery
+  [-58.58338, -34.56266], // Pedro Podestá
+  [-58.56917, -34.56274], // Martín Coronado
+  [-58.55515, -34.56233], // José M. Bosch
+  [-58.54131, -34.56135], // Tropezón
+  [-58.52762, -34.55978], // Lourdes
+  [-58.51417, -34.55772], // Fernández Moreno
+  [-58.50090, -34.55515], // General S. Lynch
+  [-58.48786, -34.55206], // Antonio Devoto
+  [-58.47512, -34.54856], // El Libertador
+  [-58.46267, -34.54463], // Doctor A. Ilaro
+  [-58.45049, -34.54034], // Pedro N. Arata
+  [-58.43862, -34.53575], // José Artigas
+  [-58.42775, -34.53167], // Federico Lacroze
 ];
 
 // ── DETAIL VIEW ───────────────────────────────────────────────────────────────
@@ -1073,22 +1075,9 @@ function closeDetail(){
 
 function switchView(v){
   const dBtn = document.getElementById('vbtn-diagram');
-  const mBtn = document.getElementById('vbtn-map');
   const dView = document.getElementById('view-diagram');
-  const mView = document.getElementById('view-map');
-  if(v === 'diagram'){
-    dView.style.display = ''; mView.style.display = 'none';
-    dBtn.classList.add('active'); dBtn.setAttribute('aria-pressed','true');
-    mBtn.classList.remove('active'); mBtn.setAttribute('aria-pressed','false');
-  } else {
-    dView.style.display = 'none'; mView.style.display = '';
-    mBtn.classList.add('active'); mBtn.setAttribute('aria-pressed','true');
-    dBtn.classList.remove('active'); dBtn.setAttribute('aria-pressed','false');
-    // Reset so it refits to the current route each time
-    mapState.initialized = false;
-    // slight delay to ensure canvas is visible before drawing
-    requestAnimationFrame(()=>requestAnimationFrame(initCanvas));
-  }
+  dView.style.display = '';
+  dBtn.classList.add('active'); dBtn.setAttribute('aria-pressed','true');
 }
 
 // ── TIMELINE ─────────────────────────────────────────────────────────────────
@@ -1171,6 +1160,7 @@ function latLngToPixel(lng, lat, baseScale){
   return {x, y};
 }
 
+/* MAP ENGINE HIDDEN
 // ── TILE MAP ENGINE ──────────────────────────────────────────────────────────
 // Uses OpenStreetMap raster tiles (256px PNG) drawn onto canvas.
 // Tile URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
@@ -1204,11 +1194,12 @@ function mercatorProject(lng, lat, zoom){
 // Derive cam from zoom + center instead of arbitrary scale
 // We store: cam.zoom (float), cam.centerLng, cam.centerLat
 // and recompute cam.x/cam.y each draw
-let mapState = { zoom: 13, centerLng: -58.565, centerLat: -34.553, initialized: false };
+let mapState = { zoom: 13, centerLng: -58.5774, centerLat: -34.5472, initialized: false };
 
 function mercatorToScreen(lng, lat, CW, CH){
-  const origin = mercatorProject(mapState.centerLng, mapState.centerLat, mapState.zoom);
-  const p = mercatorProject(lng, lat, mapState.zoom);
+  const z = Math.round(mapState.zoom); // must match tile zoom
+  const origin = mercatorProject(mapState.centerLng, mapState.centerLat, z);
+  const p = mercatorProject(lng, lat, z);
   return {
     x: CW/2 + (p.x - origin.x),
     y: CH/2 + (p.y - origin.y)
@@ -1522,6 +1513,7 @@ function setupCanvasInteraction(){
     mapState.initialized=false; fitRouteMercator(); mapState.initialized=true; drawCanvas();
   });
 }
+*/ // END MAP ENGINE HIDDEN
 
 
 
@@ -1588,8 +1580,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
   document.getElementById('vbtn-diagram').addEventListener('click',()=>switchView('diagram'));
-  document.getElementById('vbtn-map').addEventListener('click',()=>switchView('map'));
-  setupCanvasInteraction();
+  // document.getElementById('vbtn-map').addEventListener('click',()=>switchView('map'));
+  // setupCanvasInteraction(); // MAP HIDDEN
 
   // Search button
   document.getElementById('go').addEventListener('click', doSearch);
