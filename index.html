@@ -311,12 +311,75 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 
 /* FOOTER */
 footer{
-  background:var(--ink);color:#4a7080;
-  text-align:center;padding:.75rem;
-  font-size:.68rem;letter-spacing:.3px;
+  background:var(--ink);
   border-top:2px solid var(--teal-dark);
 }
-footer strong{color:var(--teal)}
+.footer-top{
+  padding:1.1rem 1.5rem;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;justify-content:center;
+}
+.footer-support{
+  display:flex;flex-direction:column;align-items:center;gap:.7rem;text-align:center;
+}
+.footer-support-text{
+  font-size:.75rem;color:#6a9aaa;line-height:1.55;
+}
+.footer-bottom{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:.4rem .6rem;
+  padding:.75rem 1.5rem;
+  color:#4a7080;font-size:.68rem;letter-spacing:.3px;text-align:center;
+}
+.footer-bottom strong{color:var(--teal)}
+.footer-divider{color:#2a4455}
+.footer-link{
+  color:var(--teal);text-decoration:none;font-weight:500;
+  transition:color .15s;
+}
+.footer-link:hover{color:#fff}
+
+/* COFFEE BUTTON */
+.coffee-btn{
+  display:inline-flex;align-items:center;gap:.7rem;
+  background:rgba(0,155,155,.1);
+  border:1.5px solid rgba(0,155,155,.35);
+  border-radius:40px;
+  padding:.55rem 1.1rem .55rem .65rem;
+  text-decoration:none;
+  transition:all .2s;
+  cursor:pointer;
+}
+.coffee-btn:hover{
+  background:rgba(0,155,155,.2);
+  border-color:var(--teal);
+  transform:translateY(-1px);
+  box-shadow:0 4px 16px rgba(0,155,155,.2);
+}
+.coffee-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
+.coffee-icon{
+  width:44px;height:44px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.coffee-icon svg{width:44px;height:44px}
+.coffee-label{
+  font-family:var(--font-body);
+  font-size:.82rem;font-weight:600;
+  color:var(--teal);
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+
+/* Steam animation */
+@keyframes steam{
+  0%  {opacity:0;transform:translateY(0) scaleX(1)}
+  30% {opacity:1}
+  100%{opacity:0;transform:translateY(-7px) scaleX(1.1)}
+}
+.steam{transform-origin:bottom center}
+.s1{animation:steam 2s ease-in-out infinite}
+.s2{animation:steam 2s ease-in-out infinite .4s}
+.s3{animation:steam 2s ease-in-out infinite .8s}
 </style>
 </head>
 <body>
@@ -375,7 +438,7 @@ footer strong{color:var(--teal)}
 
     <!-- TIME + DAY -->
     <div class="pane">
-      <div class="eyebrow">Hora y Fecha de salida</div>
+      <div class="eyebrow">Hora de salida</div>
 
       <!-- 1. Ahora button — full width -->
       <button class="btn-now" id="now-btn" aria-label="Usar hora y día actual">⏱ Ahora</button>
@@ -443,7 +506,35 @@ footer strong{color:var(--teal)}
 </div>
 
 <footer role="contentinfo">
-  Basado en el <strong>Horario Mural Invierno 2026</strong> de <strong>Metrovías</strong> · Gobierno de la Provincia de Buenos Aires
+  <div class="footer-top">
+    <div class="footer-support">
+      <p class="footer-support-text">Este es un proyecto independiente y no oficial, no afiliado a Metrovías.<br>Si te resultó útil, ¡invitame un café!</p>
+      <a href='https://cafecito.app/trenurquiza' rel='noopener' target='_blank' aria-label='Invitame un café en cafecito.app' class="coffee-btn">
+        <span class="coffee-icon">
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Steam wisps -->
+            <path class="steam s1" d="M18 10 C18 7, 21 7, 21 4" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
+            <path class="steam s2" d="M26 10 C26 6, 29 6, 29 2" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
+            <path class="steam s3" d="M34 10 C34 7, 37 7, 37 4" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
+            <!-- Cup body -->
+            <path d="M12 16 H40 L37 38 Q36 42 32 42 H20 Q16 42 15 38 Z" fill="#0b1f2e" stroke="#009b9b" stroke-width="2" stroke-linejoin="round"/>
+            <!-- Handle -->
+            <path d="M40 20 Q50 20 50 28 Q50 36 40 36" stroke="#009b9b" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <!-- Coffee liquid inside -->
+            <path d="M15.5 22 H36.5 L34 36 Q33 40 30 40 H22 Q19 40 18 36 Z" fill="#1aad6e" opacity="0.15"/>
+            <!-- Saucer -->
+            <ellipse cx="26" cy="44" rx="16" ry="3" fill="#009b9b" opacity="0.25"/>
+          </svg>
+        </span>
+        <span class="coffee-label">¡Invitame un café!</span>
+      </a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Basado en el <strong>Horario Mural Invierno 2026</strong> de <strong>Metrovías</strong> · Gobierno de la Provincia de Buenos Aires</span>
+    <span class="footer-divider">·</span>
+    <span>Hecho por <a href="https://martin-pastor.com" target="_blank" rel="noopener" class="footer-link">Martin Pastor</a></span>
+  </div>
 </footer>
 
 <script>
