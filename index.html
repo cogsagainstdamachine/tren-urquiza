@@ -534,14 +534,6 @@ footer{
 <!-- TOP BAR -->
 <header class="topbar" role="banner">
   <div class="topbar-left">
-    <div class="train-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="5" width="18" height="11" rx="2" stroke="#009b9b" stroke-width="1.7"/>
-        <circle cx="7.5" cy="17.5" r="1.8" stroke="#009b9b" stroke-width="1.7"/>
-        <circle cx="16.5" cy="17.5" r="1.8" stroke="#009b9b" stroke-width="1.7"/>
-        <path d="M3 9.5h18M9 5v4.5M15 5v4.5" stroke="#009b9b" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    </div>
     <div class="brand">
       <div class="brand-name">Tren Urquiza</div>
       <div class="brand-sub">Pcia. de Buenos Aires · <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.3)">Metrovías</a></div>
@@ -726,15 +718,21 @@ footer{
 
 const ST = [
   "General Lemos","Sargento Cabral","Campo de Mayo","Teniente Agneta",
-  "Capitán Lozano","Sargento Benedicto","Juan E. de la Salle",
+  "Capitán Lozano","Sgto. Barruffaldi","Juan E. de la Salle",
   "Ejército de los Andes","Rubén Darío","Jorge Newbery","Pedro Podestá",
   "Martín Coronado","José M. Bosch","Tropezón","Lourdes",
-  "Fernández Moreno","General S. Lynch","Antonio Devoto","El Libertador",
-  "Doctor A. Ilaro","Pedro N. Arata","José Artigas","Federico Lacroze"
+  "Fernández Moreno","Cnel. Fco. Lynch","Antonio Devoto","El Libertador",
+  "Dr. Fco. Beiró","Pedro N. Arata","José Artigas","Federico Lacroze"
 ];
 
 // Cumulative travel minutes from index 0 (General Lemos)
-const TM = [48, 45, 43, 41, 39, 37, 34, 33, 29, 28, 26, 24, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 0];
+// TM_LC: cumulative minutes from Lacroze (index 0=Lemos, index 22=Lacroze)
+// Used for Lacroze→Lemos direction (DLC departures)
+const TM_LC = [48, 45, 43, 41, 39, 37, 34, 33, 29, 28, 26, 24, 21, 19, 17, 15, 13, 11, 9, 7, 5, 3, 0];
+
+// TM_LM: cumulative minutes from Lemos (index 0=Lemos, index 22=Lacroze)
+// Used for Lemos→Lacroze direction (DL departures)
+const TM_LM = [0, 2, 4, 5, 7, 9, 12, 14, 18, 20, 22, 24, 27, 29, 31, 33, 35, 37, 38, 39, 42, 44, 49];
 
 // Departures from General Lemos (→ Lacroze)
 const DL = {
@@ -986,12 +984,9 @@ function doSearch(){
 
   const toLacroze = o<d;
   const deps = toLacroze ? DL[S.day] : DLC[S.day];
-  const TM_MAX = TM[0]; // 48 — total journey Lemos→Lacroze
-  // TM is indexed [0..22] = [Lemos..Lacroze], values = minutes from Lacroze
-  // toLacroze: train departs from higher index (Lemos side), offset from Lemos = TM_MAX - TM[i]
-  // towardLemos: train departs from lower index (Lacroze side), offset from Lacroze = TM[i]
-  const mO = toLacroze ? (TM_MAX - TM[o]) : TM[o];
-  const mD = toLacroze ? (TM_MAX - TM[d]) : TM[d];
+  // toLacroze: use TM_LM (offsets from Lemos), towardLemos: use TM_LC (offsets from Lacroze)
+  const mO = toLacroze ? TM_LM[o] : TM_LC[o];
+  const mD = toLacroze ? TM_LM[d] : TM_LC[d];
   const tval = document.getElementById('ttime').value || nowStr();
   const req  = toM(tval);
   const now  = toM(nowStr());
@@ -1058,7 +1053,7 @@ const COORDS = [
   [-58.69826, -34.54855], // Campo de Mayo
   [-58.68354, -34.55133], // Teniente Agneta
   [-58.66930, -34.55381], // Capitán Lozano
-  [-58.65492, -34.55601], // Sargento Benedicto
+  [-58.65492, -34.55601], // Sgto. Barruffaldi
   [-58.64060, -34.55800], // Juan E. de la Salle
   [-58.62615, -34.55968], // Ejército de los Andes
   [-58.61188, -34.56105], // Rubén Darío
@@ -1069,10 +1064,10 @@ const COORDS = [
   [-58.54131, -34.56135], // Tropezón
   [-58.52762, -34.55978], // Lourdes
   [-58.51417, -34.55772], // Fernández Moreno
-  [-58.50090, -34.55515], // General S. Lynch
+  [-58.50090, -34.55515], // Cnel. Fco. Lynch
   [-58.48786, -34.55206], // Antonio Devoto
   [-58.47512, -34.54856], // El Libertador
-  [-58.46267, -34.54463], // Doctor A. Ilaro
+  [-58.46267, -34.54463], // Dr. Fco. Beiró
   [-58.45049, -34.54034], // Pedro N. Arata
   [-58.43862, -34.53575], // José Artigas
   [-58.42775, -34.53167], // Federico Lacroze
@@ -1130,9 +1125,8 @@ function buildTimeline(train, orig, dest, toLacroze, minR, maxR){
   // Travel time from base terminus to each station
   const stopsInRange = [];
   for(let i = minR; i <= maxR; i++){
-    const TM_MAX = TM[0];
-    const mFromBase = toLacroze ? (TM_MAX - TM[i]) : TM[i];
-    const mFromOrig = toLacroze ? (TM_MAX - TM[orig]) : TM[orig];
+    const mFromBase = toLacroze ? TM_LM[i] : TM_LC[i];
+    const mFromOrig = toLacroze ? TM_LM[orig] : TM_LC[orig];
     const arrAtI = train.depO + (mFromBase - mFromOrig);
     stopsInRange.push({ idx: i, arr: arrAtI });
   }
