@@ -110,12 +110,14 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 /* ROUTE FIELDS */
 .field{display:flex;flex-direction:column;gap:.35rem}
 .field label{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--ink-light)}
-.field select,.field input[type=time]{
+.field select,.field input[type="time"]{display:block;
   width:100%;border:1.5px solid var(--rule);border-radius:7px;
   padding:.62rem .85rem;font-family:var(--font-body);font-size:.92rem;color:var(--ink);
   background:var(--paper);appearance:none;-webkit-appearance:none;cursor:pointer;
   transition:border-color .15s,box-shadow .15s;
 }
+input[type="time"]::-webkit-datetime-edit-ampm-field{display:none}
+input[type="time"]{-webkit-appearance:none;appearance:none}
 .field select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23009b9b' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right .8rem center;padding-right:2rem;
@@ -594,7 +596,7 @@ footer{
       <div class="time-row">
         <div class="field">
           <label for="ttime">Hora</label>
-          <input type="time" id="ttime"/>
+          <input type="time" id="ttime" step="60"/>
         </div>
         <button class="btn" id="go" aria-label="Buscar próximos trenes">BUSCAR</button>
       </div>
@@ -984,8 +986,12 @@ function doSearch(){
 
   const toLacroze = o<d;
   const deps = toLacroze ? DL[S.day] : DLC[S.day];
-  const mO   = TM[toLacroze ? o : (ST.length-1-o)];
-  const mD   = TM[toLacroze ? d : (ST.length-1-d)];
+  const TM_MAX = TM[0]; // 48 — total journey Lemos→Lacroze
+  // TM is indexed [0..22] = [Lemos..Lacroze], values = minutes from Lacroze
+  // toLacroze: train departs from higher index (Lemos side), offset from Lemos = TM_MAX - TM[i]
+  // towardLemos: train departs from lower index (Lacroze side), offset from Lacroze = TM[i]
+  const mO = toLacroze ? (TM_MAX - TM[o]) : TM[o];
+  const mD = toLacroze ? (TM_MAX - TM[d]) : TM[d];
   const tval = document.getElementById('ttime').value || nowStr();
   const req  = toM(tval);
   const now  = toM(nowStr());
@@ -1124,8 +1130,9 @@ function buildTimeline(train, orig, dest, toLacroze, minR, maxR){
   // Travel time from base terminus to each station
   const stopsInRange = [];
   for(let i = minR; i <= maxR; i++){
-    const mFromBase = TM[toLacroze ? i : (ST.length-1-i)];
-    const mFromOrig = TM[toLacroze ? orig : (ST.length-1-orig)];
+    const TM_MAX = TM[0];
+    const mFromBase = toLacroze ? (TM_MAX - TM[i]) : TM[i];
+    const mFromOrig = toLacroze ? (TM_MAX - TM[orig]) : TM[orig];
     const arrAtI = train.depO + (mFromBase - mFromOrig);
     stopsInRange.push({ idx: i, arr: arrAtI });
   }
