@@ -43,14 +43,14 @@ except ImportError:
 
 # Row number of the origin station in each sheet (1-indexed)
 ORIGIN_ROWS = {
-    'LM_Semana':  4,
-    'LM_Sabado':  4,
-    'LM_Domingo': 4,
-    'LM_Feriado': 4,
-    'LC_Semana':  4,
-    'LC_Sabado':  4,
-    'LC_Domingo': 4,
-    'LC_Feriado': 4,
+    'LM_Semana':  5,
+    'LM_Sabado':  5,
+    'LM_Domingo': 5,
+    'LM_Feriado': 5,
+    'LC_Semana':  5,
+    'LC_Sabado':  5,
+    'LC_Domingo': 5,
+    'LC_Feriado': 5,
 }
 
 # Maps sheet name → JS variable key path
