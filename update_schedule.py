@@ -43,14 +43,14 @@ except ImportError:
 
 # Row number of the origin station in each sheet (1-indexed)
 ORIGIN_ROWS = {
-    'LM_Semana':  5,   # General Lemos = station index 0, Excel row 5
-    'LM_Sabado':  5,
-    'LM_Domingo': 5,
-    'LM_Feriado': 5,
-    'LC_Semana':  5,  # Federico Lacroze = station index 22, Excel row 27
-    'LC_Sabado':  5,
-    'LC_Domingo': 5,
-    'LC_Feriado': 5,
+    'LM_Semana':  4,
+    'LM_Sabado':  4,
+    'LM_Domingo': 4,
+    'LM_Feriado': 4,
+    'LC_Semana':  4,
+    'LC_Sabado':  4,
+    'LC_Domingo': 4,
+    'LC_Feriado': 4,
 }
 
 # Maps sheet name → JS variable key path
@@ -84,10 +84,14 @@ def read_departures(xlsx_path):
             if val is None:
                 break
             # Normalise to HH:MM string
-            val = str(val).strip()
-            if re.match(r'^\d{1,2}:\d{2}$', val):
-                h, m = val.split(':')
-                times.append(f"{int(h):02d}:{int(m):02d}")
+            import datetime
+            if isinstance(val, datetime.time):
+                times.append(f"{val.hour:02d}:{val.minute:02d}")
+            else:
+                val = str(val).strip()
+                if re.match(r'^\d{1,2}:\d{2}$', val):
+                    h, m = val.split(':')
+                    times.append(f"{int(h):02d}:{int(m):02d}")
             col += 1
 
         if not times:
