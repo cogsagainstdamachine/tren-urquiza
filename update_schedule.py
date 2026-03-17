@@ -47,10 +47,10 @@ ORIGIN_ROWS = {
     'LM_Sabado':  5,
     'LM_Domingo': 5,
     'LM_Feriado': 5,
-    'LC_Semana':  27,  # Federico Lacroze = station index 22, Excel row 27
-    'LC_Sabado':  27,
-    'LC_Domingo': 27,
-    'LC_Feriado': 27,
+    'LC_Semana':  5,  # Federico Lacroze = station index 22, Excel row 27
+    'LC_Sabado':  5,
+    'LC_Domingo': 5,
+    'LC_Feriado': 5,
 }
 
 # Maps sheet name → JS variable key path
