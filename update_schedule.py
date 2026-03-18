@@ -2,7 +2,7 @@
 """
 update_schedule.py — reads plain-text times from INPUT sheet, updates index.html
 """
-import re, sys, argparse
+import re, sys, argparse, datetime
 from pathlib import Path
 
 try:
@@ -13,6 +13,18 @@ except ImportError:
 KEYS = ['DL_weekday','DL_saturday','DL_sunday','DL_holiday',
         'DLC_weekday','DLC_saturday','DLC_sunday','DLC_holiday']
 
+def parse_time(val):
+    """Parse a cell value into HH:MM string, handling both text and datetime.time."""
+    if val is None:
+        return None
+    if isinstance(val, datetime.time):
+        return f"{val.hour:02d}:{val.minute:02d}"
+    t = str(val).strip()
+    if re.match(r'^\d{1,2}:\d{2}$', t):
+        h, m = t.split(':')
+        return f"{int(h):02d}:{int(m):02d}"
+    return None
+
 def read_departures(xlsx_path):
     wb = openpyxl.load_workbook(str(xlsx_path), data_only=True)
     if 'INPUT' not in wb.sheetnames:
@@ -21,13 +33,14 @@ def read_departures(xlsx_path):
     result = {k: [] for k in KEYS}
     for row in ws.iter_rows(min_row=1, values_only=True):
         col_a = str(row[0]).strip() if row[0] else ''
-        col_c = str(row[2]).strip() if len(row) > 2 and row[2] else ''
-        if col_a in KEYS and re.match(r'^\d{1,2}:\d{2}$', col_c):
-            h, m = col_c.split(':')
-            result[col_a].append(f"{int(h):02d}:{int(m):02d}")
+        col_c = row[2] if len(row) > 2 else None
+        if col_a in KEYS:
+            t = parse_time(col_c)
+            if t:
+                result[col_a].append(t)
     for k, times in result.items():
         if times: print(f"  {k}: {len(times)} ({times[0]} -> {times[-1]})")
-        else:      print(f"  WARNING: {k} — no times found")
+        else:     print(f"  WARNING: {k} — no times found")
     return result
 
 def format_js_array(times, indent=4):
