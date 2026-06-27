@@ -77,12 +77,23 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 @media(min-width:721px){
   .pane.pane-route,.pane.pane-time{ display:none; }
 
-  /* Wrapper */
+  /* Outer wrapper — full width with background */
   .search-bar{
     display:block;
-    padding:1.2rem 1.5rem 1rem;
-    background:var(--white);
+    background:var(--paper);
     border-bottom:1px solid var(--rule);
+    padding:2rem 1.5rem;
+  }
+
+  /* Inner card — max-width centered, white, with shadow like DB */
+  .sb-inner{
+    max-width:860px;
+    margin:0 auto;
+    background:var(--white);
+    border:1.5px solid var(--rule);
+    border-radius:10px;
+    box-shadow:0 2px 16px rgba(0,0,0,.08);
+    padding:1.2rem 1.4rem 1rem;
   }
 
   /* ── Row 1: main inputs ── */
@@ -185,7 +196,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 }
 @media(min-width:721px){
   /* On desktop, full-width single column for results */
-  .layout{grid-template-columns:1fr;height:auto;overflow:visible;max-width:800px;margin:0 auto;}
+  .layout{grid-template-columns:1fr;height:auto;overflow:visible;max-width:860px;margin:0 auto;}
   .left-col{border-right:none;overflow-y:visible;}
 }
 @media(max-width:720px){
@@ -739,6 +750,7 @@ footer{
 <!-- DESKTOP SEARCH BAR (visible ≥721px) -->
 <div class="search-bar" role="search" aria-label="Buscar trenes">
 
+  <div class="sb-inner">
   <!-- Row 1: Origen / Swap / Destino / Buscar -->
   <div class="sb-row1">
 
@@ -802,6 +814,7 @@ footer{
       <input type="time" id="ttime-d" step="60" aria-label="Hora de salida"/>
     </div>
   </div>
+  </div><!-- /sb-inner -->
 
 </div>
 
