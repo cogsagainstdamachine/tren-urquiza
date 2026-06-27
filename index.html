@@ -106,7 +106,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
   .sb-field{
     flex:1;display:flex;align-items:center;gap:.75rem;
     background:#f0f2f4;border-radius:8px;
-    padding:.85rem 1.1rem;
+    padding:.75rem 1.1rem;
     border:2px solid transparent;
     transition:border-color .15s,background .15s;
     cursor:pointer;min-width:0;
@@ -130,6 +130,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
     -webkit-appearance:none;appearance:none;
   }
   .sb-field select option{ font-weight:400; }
+  .sb-field select:invalid,.sb-field select[value=""]{color:var(--ink-light)}
 
   /* Swap button */
   .sb-swap{
@@ -764,10 +765,7 @@ footer{
           <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
         </svg>
       </span>
-      <div class="sb-field-inner">
-        <span class="sb-field-label">Origen</span>
-        <select id="orig-d" aria-label="Estación de origen"><option value="" disabled hidden selected></option></select>
-      </div>
+      <select id="orig-d" aria-label="Origen"><option value="" disabled hidden selected>Origen</option></select>
     </div>
 
     <!-- Swap -->
@@ -787,10 +785,7 @@ footer{
           <circle cx="10" cy="7" r="2" fill="currentColor"/>
         </svg>
       </span>
-      <div class="sb-field-inner">
-        <span class="sb-field-label">Destino</span>
-        <select id="dest-d" aria-label="Estación de destino"><option value="" disabled hidden selected></option></select>
-      </div>
+      <select id="dest-d" aria-label="Destino"><option value="" disabled hidden selected>Destino</option></select>
     </div>
 
     <!-- Search button -->
