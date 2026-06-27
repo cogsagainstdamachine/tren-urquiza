@@ -43,11 +43,16 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .topbar{
   background:var(--white);color:var(--ink);
   display:flex;align-items:center;justify-content:space-between;
-  padding:.7rem 1.5rem;
+  padding:.7rem 1.5rem .9rem;
   position:sticky;top:0;z-index:200;
-  border-bottom:3px solid var(--teal);
   box-shadow:0 2px 8px rgba(0,0,0,.06);
   gap:1rem;
+}
+.topbar-line{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  width:100%;height:10px;
+  display:block;pointer-events:none;
 }
 .topbar-left{display:flex;align-items:center;gap:.85rem;min-width:0}
 .train-icon{
@@ -89,7 +94,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .pane:last-child{border-bottom:none}
 
 .eyebrow{
-  font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
+  font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1.3px;
   color:var(--teal-dark);margin-bottom:.75rem;
   display:flex;align-items:center;gap:.5rem;
 }
@@ -101,7 +106,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
   flex:1;padding:.55rem .3rem;text-align:center;
   border:1.5px solid var(--rule);border-radius:6px;
   background:var(--paper);
-  font-family:var(--font-body);font-size:.78rem;font-weight:500;color:var(--ink-light);
+  font-family:var(--font-body);font-size:.875rem;font-weight:500;color:var(--ink-light);
   cursor:pointer;transition:all .15s;user-select:none;
 }
 .pill:hover{border-color:var(--teal);color:var(--teal-dark)}
@@ -110,10 +115,10 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 
 /* ROUTE FIELDS */
 .field{display:flex;flex-direction:column;gap:.35rem}
-.field label{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--ink-light)}
+.field label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--ink-light)}
 .field select,.field input[type="time"]{display:block;
   width:100%;border:1.5px solid var(--rule);border-radius:7px;
-  padding:.62rem .85rem;font-family:var(--font-body);font-size:.92rem;color:var(--ink);
+  padding:.62rem .85rem;font-family:var(--font-body);font-size:1rem;color:var(--ink);
   background:var(--paper);appearance:none;-webkit-appearance:none;cursor:pointer;
   transition:border-color .15s,box-shadow .15s;
 }
@@ -178,8 +183,8 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .results-empty .icon{font-size:2rem;display:block;margin-bottom:.5rem}
 
 .results-top{margin-bottom:.85rem}
-.results-heading{font-family:var(--font-display);font-size:1.25rem;letter-spacing:1.5px;color:var(--ink);line-height:1}
-.results-route{font-size:.72rem;color:var(--ink-light);margin-top:.2rem}
+.results-heading{font-family:var(--font-display);font-size:1.1rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--ink);line-height:1}
+.results-route{font-size:.875rem;color:var(--ink-light);margin-top:.2rem}
 
 .cards{display:flex;flex-direction:column;gap:.45rem}
 
@@ -201,19 +206,19 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .card:nth-child(4){animation-delay:135ms}
 .card:nth-child(5){animation-delay:180ms}
 
-.dep{font-family:var(--font-display);font-size:1.55rem;letter-spacing:.5px;color:var(--teal-dark);line-height:1}
+.dep{font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:.5px;color:var(--teal-dark);line-height:1}
 .card.next .dep{color:var(--teal)}
 .meta{}
-.arr{font-size:.72rem;color:var(--ink-light);margin-bottom:.1rem}
-.arr strong{color:var(--ink-mid);font-weight:600}
-.dir{font-size:.62rem;font-weight:500;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-light)}
+.arr{font-size:.875rem;color:var(--ink-light);margin-bottom:.1rem}
+.arr strong{color:var(--ink-mid);font-weight:700}
+.dir{font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-light)}
 .next-lozenge{
   display:inline-block;background:var(--teal);color:#fff;
   font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
   padding:.12rem .45rem;border-radius:20px;margin-bottom:.2rem;
 }
 .wait{text-align:right}
-.wait-num{font-family:var(--font-display);font-size:1rem;letter-spacing:.5px;line-height:1}
+.wait-num{font-family:var(--font-display);font-size:1.1rem;font-weight:700;letter-spacing:.5px;line-height:1}
 .wait-lbl{font-size:.58rem;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-light);display:block;margin-top:2px}
 .wait-num.now{color:var(--green)}
 .wait-num.soon{color:var(--accent)}
@@ -316,34 +321,69 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 }
 
 /* FOOTER */
+/* MAP SECTION */
+.line-map-section{
+  background:var(--white);
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  padding:1.5rem 1.5rem 1rem;
+}
+.line-map-heading{
+  font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--ink-light);margin-bottom:1rem;
+}
+.line-map-svg-wrap{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:.5rem;
+}
+
+/* FOOTER */
 footer{
-  background:var(--ink);
-  border-top:2px solid var(--teal-dark);
+  background:#f8f8f8;
+  border-top:3px solid var(--teal);
 }
-.footer-top{
-  padding:1.1rem 1.5rem;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;justify-content:center;
+.footer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+  padding:1.5rem 1.5rem 1rem;
+  max-width:800px;
+  margin:0 auto;
 }
-.footer-support{
-  display:flex;flex-direction:column;align-items:center;gap:.7rem;text-align:center;
+@media(max-width:500px){.footer-grid{grid-template-columns:1fr;gap:1rem}}
+.footer-col-heading{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--ink-light);margin-bottom:.75rem;
 }
-.footer-support-text{
-  font-size:.75rem;color:#6a9aaa;line-height:1.55;
+.footer-links{display:flex;flex-wrap:wrap;gap:.5rem}
+.footer-pill{
+  display:inline-block;
+  padding:.35rem .85rem;
+  border:1.5px solid var(--rule);
+  border-radius:20px;
+  font-size:.82rem;font-weight:500;
+  color:var(--ink-mid);
+  text-decoration:none;
+  background:var(--white);
+  transition:all .15s;
+}
+.footer-pill:hover{border-color:var(--teal);color:var(--teal)}
+.footer-support-col{display:flex;flex-direction:column;gap:.6rem}
+.footer-disclaimer{
+  font-size:.78rem;color:var(--ink-light);line-height:1.55;
 }
 .footer-bottom{
-  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
-  gap:.4rem .6rem;
+  border-top:1px solid #e8e8e8;
   padding:.75rem 1.5rem;
-  color:#4a7080;font-size:.68rem;letter-spacing:.3px;text-align:center;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:.4rem;
+  color:var(--ink-light);font-size:.72rem;
 }
-.footer-bottom strong{color:var(--teal)}
-.footer-divider{color:#2a4455}
 .footer-link{
-  color:var(--teal);text-decoration:none;font-weight:500;
+  color:var(--teal-dark);text-decoration:none;font-weight:500;
   transition:color .15s;
 }
-.footer-link:hover{color:#fff}
+.footer-link:hover{color:var(--teal)}
 
 /* COFFEE BUTTON */
 .coffee-btn{
@@ -534,17 +574,48 @@ footer{
 <a href="#main" class="skip">Ir al contenido principal</a>
 
 <!-- TOP BAR -->
-<header class="topbar" role="banner">
+<header class="topbar" role="banner" style="position:relative">
   <div class="topbar-left">
     <div class="brand">
-      <div class="brand-name">Tren Urquiza</div>
-      <div class="brand-sub">Pcia. de Buenos Aires · <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-decoration-color:rgba(255,255,255,0.3)">Metrovías</a></div>
+      <div class="brand-name">Tren Urquiza Horarios</div>
+      <div class="brand-sub">Ramal B · Buenos Aires</div>
     </div>
   </div>
   <div class="topbar-right">
     <div class="clock" id="clock" aria-live="polite" aria-label="Hora actual"></div>
     <div class="dateline" id="dateline"></div>
   </div>
+  <!-- Train line strip -->
+  <svg class="topbar-line" viewBox="0 0 960 12" preserveAspectRatio="none"
+       xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <!-- Orange line — full width -->
+    <line x1="0" y1="6" x2="960" y2="6" stroke="#e07820" stroke-width="4"/>
+    <!-- 23 station dots evenly spaced across full width -->
+    <!-- Spacing: 960/22 = ~43.6px between stations -->
+    <circle cx="0"    cy="6" r="4" fill="white" stroke="#e07820" stroke-width="2.5"/>
+    <circle cx="44"   cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="87"   cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="131"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="175"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="218"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="262"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="306"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="349"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="393"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="436"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="480"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="524"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="567"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="611"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="655"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="698"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="742"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="785"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="829"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="873"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="916"  cy="6" r="3" fill="white" stroke="#e07820" stroke-width="2"/>
+    <circle cx="960"  cy="6" r="4" fill="white" stroke="#e07820" stroke-width="2.5"/>
+  </svg>
 </header>
 
 <!-- LAYOUT -->
@@ -666,34 +737,25 @@ footer{
 </div>
 
 
-  <div class="footer-top">
-    <div class="footer-support">
-      <p class="footer-support-text">Este es un proyecto independiente y no oficial, no afiliado a <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">Metrovías</a>.<br>Si te resultó útil, ¡invitame un café!</p>
-      <a href='https://cafecito.app/martin-pastor' rel='noopener' target='_blank' aria-label='Invitame un café en cafecito.app' class="coffee-btn">
-        <span class="coffee-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <!-- Steam wisps -->
-            <path class="steam s1" d="M18 10 C18 7, 21 7, 21 4" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
-            <path class="steam s2" d="M26 10 C26 6, 29 6, 29 2" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
-            <path class="steam s3" d="M34 10 C34 7, 37 7, 37 4" stroke="#009b9b" stroke-width="2" stroke-linecap="round"/>
-            <!-- Cup body -->
-            <path d="M12 16 H40 L37 38 Q36 42 32 42 H20 Q16 42 15 38 Z" fill="#0b1f2e" stroke="#009b9b" stroke-width="2" stroke-linejoin="round"/>
-            <!-- Handle -->
-            <path d="M40 20 Q50 20 50 28 Q50 36 40 36" stroke="#009b9b" stroke-width="2" stroke-linecap="round" fill="none"/>
-            <!-- Coffee liquid inside -->
-            <path d="M15.5 22 H36.5 L34 36 Q33 40 30 40 H22 Q19 40 18 36 Z" fill="#1aad6e" opacity="0.15"/>
-            <!-- Saucer -->
-            <ellipse cx="26" cy="44" rx="16" ry="3" fill="#009b9b" opacity="0.25"/>
-          </svg>
-        </span>
-        <span class="coffee-label">¡Invitame un café!</span>
-      </a>
+  <div class="footer-grid">
+    <!-- Links útiles -->
+    <div>
+      <div class="footer-col-heading">Links útiles</div>
+      <div class="footer-links">
+        <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" class="footer-pill">Metrovías</a>
+        <a href="https://metrovias.com.ar/wp-content/uploads/2026/02/Horarios-Mural_-invierno-2026-curvas.pdf" target="_blank" rel="noopener" class="footer-pill">Horario Mural 2026</a>
+        <a href="https://cafecito.app/martin-pastor" target="_blank" rel="noopener" class="footer-pill">☕ Invitame un café</a>
+      </div>
+    </div>
+    <!-- Sobre el sitio -->
+    <div class="footer-support-col">
+      <div class="footer-col-heading">Sobre este sitio</div>
+      <p class="footer-disclaimer">Proyecto independiente y no oficial, no afiliado a Metrovías ni al Gobierno de la Provincia de Buenos Aires. Los horarios pueden tener diferencias de +/- 3 minutos.</p>
     </div>
   </div>
   <div class="footer-bottom">
-    <span>Basado en el <a href="https://metrovias.com.ar/wp-content/uploads/2026/02/Horarios-Mural_-invierno-2026-curvas.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline"><strong>Horario Mural Invierno 2026</strong></a> de <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline"><strong>Metrovías</strong></a> · Gobierno de la Provincia de Buenos Aires</span>
-    <span class="footer-divider">·</span>
-    <span>Hecho por <a href="https://martin-pastor.com" target="_blank" rel="noopener" class="footer-link" title="Para mi amante Luli">Martin Pastor</a></span>
+    <span>Basado en el <a href="https://metrovias.com.ar/wp-content/uploads/2026/02/Horarios-Mural_-invierno-2026-curvas.pdf" target="_blank" rel="noopener" class="footer-link">Horario Mural Invierno 2026</a> · <a href="https://www.metrovias.com.ar" target="_blank" rel="noopener" class="footer-link">Metrovías</a></span>
+    <span>Hecho por <a href="https://martin-pastor.com" target="_blank" rel="noopener" class="footer-link">Martin Pastor</a></span>
   </div>
 </footer>
 
