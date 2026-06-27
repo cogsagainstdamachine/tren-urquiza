@@ -67,6 +67,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .brand-name{font-family:var(--font-display);font-size:1.1rem;letter-spacing:3px;font-weight:800;text-transform:uppercase;line-height:1;color:var(--ink);white-space:nowrap}
 .brand-sub{font-size:.62rem;font-weight:600;color:var(--teal);letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
 .topbar-right{text-align:right;flex-shrink:0}
+@media(max-width:720px){.topbar-right{display:none}}
 .clock{font-family:var(--font-display);font-size:1.2rem;letter-spacing:3px;font-weight:700;color:var(--teal);line-height:1}
 .dateline{font-size:.62rem;color:var(--ink-light);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
 
@@ -238,7 +239,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 /* ROUTE FIELDS — mobile, same visual language as desktop */
 .field{display:flex;align-items:center;gap:.75rem;
   background:#f0f2f4;border-radius:8px;
-  padding:.85rem 1rem;
+  padding:.7rem 1rem;
   border:2px solid transparent;
   transition:border-color .15s,background .15s;
 }
@@ -259,6 +260,7 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
   font-family:var(--font-body);font-size:1rem;font-weight:600;
   color:var(--ink);appearance:none;-webkit-appearance:none;cursor:pointer;padding:0;
 }
+.field select:invalid,.field select[value=""]{color:var(--ink-light)}
 input[type="time"]::-webkit-datetime-edit-ampm-field{display:none}
 input[type="time"]{-webkit-appearance:none;appearance:none}
 
@@ -836,8 +838,7 @@ footer{
             </svg>
           </span>
           <div class="field-inner">
-            <label for="orig">Origen</label>
-            <select id="orig"><option value="" disabled hidden selected></option></select>
+            <select id="orig" aria-label="Origen"><option value="" disabled hidden selected>Origen</option></select>
           </div>
         </div>
         <div class="swap-row">
@@ -859,8 +860,7 @@ footer{
             </svg>
           </span>
           <div class="field-inner">
-            <label for="dest">Destino</label>
-            <select id="dest"><option value="" disabled hidden selected></option></select>
+            <select id="dest" aria-label="Destino"><option value="" disabled hidden selected>Destino</option></select>
           </div>
         </div>
       </div>
@@ -887,8 +887,7 @@ footer{
             </svg>
           </span>
           <div class="field-inner">
-            <label for="ttime">Hora de salida</label>
-            <input type="time" id="ttime" step="60"/>
+            <input type="time" id="ttime" step="60" aria-label="Hora de salida"/>
           </div>
         </div>
         <button class="btn" id="go" aria-label="Buscar próximos trenes" style="width:100%">BUSCAR</button>
