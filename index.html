@@ -13,25 +13,25 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <title>Tren Urquiza — Horarios</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0b1f2e;
-  --ink-mid:#2a4455;
-  --ink-light:#5a7a8a;
-  --teal:#009b9b;
-  --teal-dark:#007373;
-  --teal-xlight:#e6f7f7;
-  --teal-light:#b8e8e8;
-  --paper:#f5f9f9;
+  --ink:#2d2d2d;
+  --ink-mid:#4a4a4a;
+  --ink-light:#7a7a7a;
+  --teal:#00bcb4;
+  --teal-dark:#009990;
+  --teal-xlight:#e5f9f8;
+  --teal-light:#99e5e2;
+  --paper:#f5f5f5;
   --white:#ffffff;
   --rule:#ddeaec;
   --accent:#e05a20;
   --green:#1aad6e;
   --yellow:#e09500;
-  --font-display:'Bebas Neue',sans-serif;
-  --font-body:'DM Sans',sans-serif;
+  --font-display:'Montserrat',sans-serif;
+  --font-body:'Montserrat',sans-serif;
 }
 html{font-size:16px}
 body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.5}
@@ -41,28 +41,29 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 
 /* ── TOP BAR ── */
 .topbar{
-  background:var(--ink);color:#fff;
+  background:var(--white);color:var(--ink);
   display:flex;align-items:center;justify-content:space-between;
   padding:.7rem 1.5rem;
   position:sticky;top:0;z-index:200;
   border-bottom:3px solid var(--teal);
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
   gap:1rem;
 }
 .topbar-left{display:flex;align-items:center;gap:.85rem;min-width:0}
 .train-icon{
   width:38px;height:38px;flex-shrink:0;
   background:rgba(0,155,155,.15);
-  border:1.5px solid var(--teal);
+  border:1.5px solid var(--teal-dark);
   border-radius:8px;
   display:flex;align-items:center;justify-content:center;
 }
 .train-icon svg{width:20px;height:20px}
 .brand{min-width:0}
-.brand-name{font-family:var(--font-display);font-size:1.5rem;letter-spacing:2.5px;line-height:1;color:#fff;white-space:nowrap}
-.brand-sub{font-size:.62rem;font-weight:400;color:#6a9aaa;letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
+.brand-name{font-family:var(--font-display);font-size:1.1rem;letter-spacing:3px;font-weight:800;text-transform:uppercase;line-height:1;color:var(--ink);white-space:nowrap}
+.brand-sub{font-size:.62rem;font-weight:600;color:var(--teal);letter-spacing:.7px;text-transform:uppercase;margin-top:1px}
 .topbar-right{text-align:right;flex-shrink:0}
-.clock{font-family:var(--font-display);font-size:1.55rem;letter-spacing:2px;color:var(--teal);line-height:1}
-.dateline{font-size:.62rem;color:#6a9aaa;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.clock{font-family:var(--font-display);font-size:1.2rem;letter-spacing:3px;font-weight:700;color:var(--teal);line-height:1}
+.dateline{font-size:.62rem;color:var(--ink-light);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
 
 /* ── LAYOUT ── */
 .layout{
@@ -161,8 +162,8 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .btn-now:hover{background:var(--teal);color:#fff}
 .btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
 .btn{
-  padding:.62rem 1.1rem;background:var(--teal);color:#fff;
-  font-family:var(--font-display);font-size:1.1rem;letter-spacing:2px;
+  padding:.62rem 1.1rem;background:var(--teal-dark);color:#fff;
+  font-family:var(--font-display);font-size:.85rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
   border:none;border-radius:7px;cursor:pointer;white-space:nowrap;
   transition:background .15s,transform .1s;
   height:calc(1.5rem + 1.24rem + 2px); /* match input height */
@@ -411,6 +412,7 @@ footer{
   padding:.85rem 1.2rem;
   display:flex;align-items:center;gap:.8rem;
   border-bottom:3px solid var(--teal);
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
   flex-shrink:0;
   flex-wrap:wrap;
   gap:.6rem;
@@ -426,7 +428,7 @@ footer{
 .detail-back:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
 .detail-title-wrap{flex:1;min-width:0}
 .detail-title{
-  font-family:var(--font-display);font-size:1.25rem;letter-spacing:1.5px;
+  font-family:var(--font-display);font-size:1rem;letter-spacing:1px;font-weight:700;
   color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .detail-subtitle{font-size:.65rem;color:#6a9aaa;margin-top:2px;letter-spacing:.4px}
@@ -597,7 +599,6 @@ footer{
     <!-- RESULTS -->
     <div class="pane" id="results" aria-live="polite" aria-label="Resultados">
       <div class="results-empty">
-        <span class="icon" aria-hidden="true">🚉</span>
         <p>Elegí origen, destino y hora,<br>o hacé clic en el mapa.</p>
       </div>
     </div>
@@ -612,23 +613,6 @@ footer{
 
   </aside>
 
-  <!-- RIGHT: MAP -->
-  <section class="map-col" aria-label="Mapa de la línea Urquiza">
-    <div class="map-heading">LÍNEA URQUIZA</div>
-    <div class="map-sub">Ramal B · General Lemos ↔ Federico Lacroze · 23 estaciones · ~49 min</div>
-    <div class="map-hint">Hacé clic en cualquier estación para seleccionarla como origen o destino.</div>
-
-    <div class="map-wrap">
-      <div class="smap" id="smap" role="list" aria-label="Estaciones de la Línea Urquiza"></div>
-    </div>
-
-    <div class="legend" aria-label="Referencias">
-      <div class="leg"><div class="leg-dot" style="background:var(--teal)" aria-hidden="true"></div>Origen</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--accent)" aria-hidden="true"></div>Destino</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--teal-xlight);border:2px solid var(--teal)" aria-hidden="true"></div>En ruta</div>
-      <div class="leg"><div class="leg-dot" style="background:var(--ink)" aria-hidden="true"></div>Terminal</div>
-    </div>
-  </section>
 
 </div>
 
@@ -884,83 +868,13 @@ function populateSelects(){
 }
 
 // ── MAP ───────────────────────────────────────────────────────────────────────
-function renderMap(){
-  const o=S.orig, d=S.dest;
-  const hasRoute = o!==null && d!==null && o!==d;
-  const minR = hasRoute?Math.min(o,d):-1;
-  const maxR = hasRoute?Math.max(o,d):-1;
-  const ROW_H = 36; // must match min-height
-
-  const map=document.getElementById('smap');
-  map.innerHTML='';
-
-  ST.forEach((name,i)=>{
-    // Teal rail overlay segment (sits on top of ::before gray line)
-    if(i>0){
-      const seg=document.createElement('div');
-      seg.className='seg'+(hasRoute&&i>minR&&i<=maxR?' show':'');
-      seg.style.cssText=`top:${(i-1)*ROW_H+18}px;height:${ROW_H}px;`;
-      seg.setAttribute('aria-hidden','true');
-      map.appendChild(seg);
-    }
-
-    const row=document.createElement('div');
-    row.className='srow';
-    row.setAttribute('role','listitem button');
-    row.setAttribute('tabindex','0');
-    row.setAttribute('aria-label',name+(i===o?' (Origen)':i===d?' (Destino)':''));
-
-    const isT=i===0||i===ST.length-1;
-    const dot=document.createElement('div');
-    dot.className='sdot'+
-      (isT?' terminal':'')+
-      (!isT&&hasRoute&&i>minR&&i<maxR?' route':'')+
-      (hasRoute&&i===o?' origin':'')+
-      (hasRoute&&i===d?' dest':'');
-    dot.setAttribute('aria-hidden','true');
-
-    const label=document.createElement('span');
-    label.className='sname'+
-      (hasRoute&&i>minR&&i<maxR?' route':'')+
-      (hasRoute&&i===o?' origin':'')+
-      (hasRoute&&i===d?' dest':'');
-    label.textContent=name;
-
-    if(hasRoute&&i===o){
-      const t=document.createElement('span');t.className='stag o';t.textContent='Origen';t.setAttribute('aria-hidden','true');
-      label.appendChild(t);
-    } else if(hasRoute&&i===d){
-      const t=document.createElement('span');t.className='stag d';t.textContent='Destino';t.setAttribute('aria-hidden','true');
-      label.appendChild(t);
-    }
-
-    row.appendChild(dot);row.appendChild(label);
-    map.appendChild(row);
-
-    function pick(){
-      const os=document.getElementById('orig');
-      const ds=document.getElementById('dest');
-      // First click → set origin; second click → set dest
-      if(os.value===''||(os.value!==''&&ds.value!=='')){
-        os.value=i; ds.value='';
-        S.orig=i; S.dest=null;
-      } else {
-        if(parseInt(os.value)===i){ os.value=''; S.orig=null; }
-        else { ds.value=i; S.dest=i; }
-      }
-      syncFromSelects();
-    }
-    row.addEventListener('click',pick);
-    row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}});
-  });
-}
-
+// renderMap removed — station map UI removed
+function renderMap(){}
 function syncFromSelects(){
   const ov=document.getElementById('orig').value;
   const dv=document.getElementById('dest').value;
   S.orig=ov===''?null:parseInt(ov);
   S.dest=dv===''?null:parseInt(dv);
-  renderMap();
   if(S.orig!==null&&S.dest!==null) doSearch();
 }
 
@@ -970,7 +884,7 @@ function doSearch(){
   const panel=document.getElementById('results');
 
   if(o===null||d===null){
-    panel.innerHTML='<div class="results-empty"><span class="icon" aria-hidden="true">🗺</span><p>Seleccioná origen y destino.</p></div>';
+    panel.innerHTML='<div class="results-empty"><p>Seleccioná origen y destino.</p></div>';
     return;
   }
   if(o===d){
@@ -1387,7 +1301,7 @@ function drawCanvas(){
   // ── STATION LABELS ────────────────────────────────────────────────────────
   if(mapState.zoom >= 12){
     const fontSize=Math.min(13,Math.max(10,8+mapState.zoom*0.3));
-    ctx.font=`600 ${fontSize}px 'DM Sans',sans-serif`;
+    ctx.font=`600 ${fontSize}px 'Montserrat',sans-serif`;
     ctx.textBaseline='middle'; ctx.textAlign='left';
     for(let i=minR;i<=maxR;i++){
       const isOrig=i===o, isDest=i===d;
@@ -1422,14 +1336,14 @@ function drawCanvas(){
     ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx+barPx,by);ctx.stroke();
     ctx.beginPath();ctx.moveTo(bx,by-5);ctx.lineTo(bx,by+5);ctx.stroke();
     ctx.beginPath();ctx.moveTo(bx+barPx,by-5);ctx.lineTo(bx+barPx,by+5);ctx.stroke();
-    ctx.font='500 9px DM Sans,sans-serif'; ctx.fillStyle='#444';
+    ctx.font='500 9px Montserrat,sans-serif'; ctx.fillStyle='#444';
     ctx.textAlign='center'; ctx.textBaseline='bottom';
     ctx.fillText(niceM>=1000?`${niceM/1000} km`:`${niceM} m`, bx+barPx/2, by-8);
     ctx.textAlign='left';
   }
 
   // ── ATTRIBUTION ───────────────────────────────────────────────────────────
-  ctx.font='400 9px DM Sans,sans-serif';
+  ctx.font='400 9px Montserrat,sans-serif';
   ctx.fillStyle='rgba(60,60,60,0.6)';
   ctx.textAlign='right'; ctx.textBaseline='bottom';
   ctx.fillText('© OpenStreetMap contributors', CW-8, CH-6);
@@ -1567,7 +1481,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Set day + time to right now on every fresh page load
   resetToNow();
-  renderMap();
 
   // Re-sync when user returns to the tab (e.g. comes back after being away)
   document.addEventListener('visibilitychange',()=>{
