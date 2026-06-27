@@ -70,12 +70,123 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .clock{font-family:var(--font-display);font-size:1.2rem;letter-spacing:3px;font-weight:700;color:var(--teal);line-height:1}
 .dateline{font-size:.62rem;color:var(--ink-light);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
 
+
+/* ── DESKTOP SEARCH BAR ── */
+.search-bar{ display:none; }
+
+@media(min-width:721px){
+  .pane.pane-route,.pane.pane-time{ display:none; }
+
+  /* Wrapper */
+  .search-bar{
+    display:block;
+    padding:1.2rem 1.5rem 1rem;
+    background:var(--white);
+    border-bottom:1px solid var(--rule);
+  }
+
+  /* ── Row 1: main inputs ── */
+  .sb-row1{
+    display:flex;align-items:center;gap:.75rem;
+  }
+
+  /* Large input field */
+  .sb-field{
+    flex:1;display:flex;align-items:center;gap:.75rem;
+    background:#f0f2f4;border-radius:8px;
+    padding:.85rem 1.1rem;
+    border:2px solid transparent;
+    transition:border-color .15s,background .15s;
+    cursor:pointer;min-width:0;
+  }
+  .sb-field:focus-within{
+    background:#fff;border-color:var(--teal);
+    box-shadow:0 0 0 3px rgba(0,188,180,.12);
+  }
+  .sb-field-icon{ color:#9aabb5;flex-shrink:0; }
+  .sb-field-inner{ flex:1;min-width:0; }
+  .sb-field-label{
+    font-size:.68rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.8px;color:var(--ink-light);
+    display:block;margin-bottom:.1rem;
+  }
+  .sb-field select,
+  .sb-field input[type="time"]{
+    border:none;background:transparent;outline:none;
+    font-family:var(--font-body);font-size:1rem;font-weight:600;
+    color:var(--ink);width:100%;cursor:pointer;padding:0;
+    -webkit-appearance:none;appearance:none;
+  }
+  .sb-field select option{ font-weight:400; }
+
+  /* Swap button */
+  .sb-swap{
+    display:flex;align-items:center;justify-content:center;
+    width:38px;height:38px;flex-shrink:0;
+    background:#f0f2f4;border:none;border-radius:50%;
+    color:var(--ink-mid);cursor:pointer;
+    transition:all .15s;
+  }
+  .sb-swap:hover{ background:var(--teal);color:#fff; }
+
+  /* Search button */
+  .sb-btn{
+    background:var(--teal);color:#fff;
+    border:none;border-radius:8px;
+    padding:.85rem 2rem;flex-shrink:0;
+    font-family:var(--font-body);font-size:1rem;font-weight:700;
+    letter-spacing:.5px;cursor:pointer;
+    transition:background .15s;white-space:nowrap;
+  }
+  .sb-btn:hover{ background:var(--teal-dark); }
+
+  /* ── Row 2: day + time ── */
+  .sb-row2{
+    display:flex;align-items:center;gap:.5rem;
+    margin-top:.7rem;
+    padding-left:.2rem;
+  }
+  .sb-row2-label{
+    font-size:.72rem;font-weight:600;color:var(--ink-light);
+    text-transform:uppercase;letter-spacing:.6px;margin-right:.2rem;
+  }
+  .sb-pill{
+    font-family:var(--font-body);font-size:.78rem;font-weight:600;
+    padding:.3rem .75rem;border-radius:20px;
+    border:1.5px solid var(--rule);background:var(--white);
+    color:var(--ink-mid);cursor:pointer;white-space:nowrap;
+    transition:all .12s;
+  }
+  .sb-pill.on{ background:var(--teal);border-color:var(--teal);color:#fff; }
+  .sb-pill:hover:not(.on){ border-color:var(--teal);color:var(--teal); }
+
+  .sb-divider{ width:1px;height:18px;background:var(--rule);margin:0 .25rem;flex-shrink:0; }
+
+  .sb-time-wrap{
+    display:flex;align-items:center;gap:.5rem;
+    background:#f0f2f4;border-radius:6px;
+    padding:.28rem .7rem;border:1.5px solid transparent;
+    transition:border-color .15s;
+  }
+  .sb-time-wrap:focus-within{ border-color:var(--teal); }
+  .sb-time-wrap input[type="time"]{
+    border:none;background:transparent;outline:none;
+    font-family:var(--font-body);font-size:.85rem;font-weight:600;
+    color:var(--ink);padding:0;-webkit-appearance:none;appearance:none;
+  }
+}
+
 /* ── LAYOUT ── */
 .layout{
   display:grid;
   grid-template-columns:360px 1fr;
-  height:calc(100vh - 56px);
+  height:calc(100vh - 116px); /* account for topbar + search bar */
   overflow:hidden;
+}
+@media(min-width:721px){
+  /* On desktop, full-width single column for results */
+  .layout{grid-template-columns:1fr;height:auto;overflow:visible;max-width:800px;margin:0 auto;}
+  .left-col{border-right:none;overflow-y:visible;}
 }
 @media(max-width:720px){
   .layout{grid-template-columns:1fr;height:auto;overflow:visible}
@@ -101,54 +212,61 @@ body{font-family:var(--font-body);background:var(--paper);color:var(--ink);min-h
 .eyebrow::before{content:'';width:14px;height:2px;background:var(--teal);border-radius:2px;display:block}
 
 /* DAY PILLS */
-.pills{display:flex;gap:.35rem}
+.pills{display:flex;gap:.4rem}
 .pill{
-  flex:1;padding:.55rem .3rem;text-align:center;
-  border:1.5px solid var(--rule);border-radius:6px;
-  background:var(--paper);
-  font-family:var(--font-body);font-size:.875rem;font-weight:500;color:var(--ink-light);
+  flex:1;padding:.5rem .3rem;text-align:center;
+  border:1.5px solid var(--rule);border-radius:20px;
+  background:var(--white);
+  font-family:var(--font-body);font-size:.82rem;font-weight:600;color:var(--ink-mid);
   cursor:pointer;transition:all .15s;user-select:none;
 }
-.pill:hover{border-color:var(--teal);color:var(--teal-dark)}
-.pill.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+.pill:hover{border-color:var(--teal);color:var(--teal)}
+.pill.on{background:var(--teal);border-color:var(--teal);color:#fff}
 .pill:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
 
-/* ROUTE FIELDS */
-.field{display:flex;flex-direction:column;gap:.35rem}
-.field label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--ink-light)}
-.field select,.field input[type="time"]{display:block;
-  width:100%;border:1.5px solid var(--rule);border-radius:7px;
-  padding:.62rem .85rem;font-family:var(--font-body);font-size:1rem;color:var(--ink);
-  background:var(--paper);appearance:none;-webkit-appearance:none;cursor:pointer;
-  transition:border-color .15s,box-shadow .15s;
+/* ROUTE FIELDS — mobile, same visual language as desktop */
+.field{display:flex;align-items:center;gap:.75rem;
+  background:#f0f2f4;border-radius:8px;
+  padding:.85rem 1rem;
+  border:2px solid transparent;
+  transition:border-color .15s,background .15s;
+}
+.field:focus-within{
+  background:#fff;border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,188,180,.12);
+}
+.field-icon{color:#9aabb5;flex-shrink:0}
+.field-inner{flex:1;min-width:0}
+.field label{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--ink-light);
+  display:block;margin-bottom:.1rem;
+}
+.field select,.field input[type="time"]{
+  display:block;width:100%;
+  border:none;background:transparent;outline:none;
+  font-family:var(--font-body);font-size:1rem;font-weight:600;
+  color:var(--ink);appearance:none;-webkit-appearance:none;cursor:pointer;padding:0;
 }
 input[type="time"]::-webkit-datetime-edit-ampm-field{display:none}
 input[type="time"]{-webkit-appearance:none;appearance:none}
-.field select{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23009b9b' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right .8rem center;padding-right:2rem;
-}
-.field select:focus,.field input[type=time]:focus{
-  outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,155,155,.18);background:var(--white);
-}
 
-.route-stack{display:flex;flex-direction:column;gap:0}
+.route-stack{display:flex;flex-direction:column;gap:.6rem}
 .swap-row{
-  display:flex;align-items:center;gap:.5rem;padding:.25rem 0;
+  display:flex;align-items:center;gap:.5rem;padding:.1rem 0;
 }
 .swap-rule{flex:1;height:1px;background:var(--rule)}
 .swap-btn{
-  width:26px;height:26px;border-radius:50%;
-  border:1.5px solid var(--rule);background:var(--white);
+  width:32px;height:32px;border-radius:50%;
+  border:none;background:#f0f2f4;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .15s;flex-shrink:0;
+  cursor:pointer;transition:all .15s;flex-shrink:0;color:var(--ink-mid);
 }
-.swap-btn:hover{background:var(--teal);border-color:var(--teal)}
-.swap-btn:hover path{stroke:#fff}
+.swap-btn:hover{background:var(--teal);color:#fff}
+.swap-btn path{stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .swap-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
-.swap-btn path{stroke:var(--teal);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke .15s}
 
-.time-row{display:flex;gap:.7rem;align-items:flex-end}
+.time-row{display:flex;gap:.7rem;align-items:stretch}
 .time-row .field{flex:1}
 .btn-now{
   width:100%;
@@ -167,12 +285,11 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .btn-now:hover{background:var(--teal);color:#fff}
 .btn-now:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.25)}
 .btn{
-  padding:.62rem 1.1rem;background:var(--teal-dark);color:#fff;
-  font-family:var(--font-display);font-size:.85rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  border:none;border-radius:7px;cursor:pointer;white-space:nowrap;
+  padding:.85rem 1.4rem;background:var(--teal);color:#fff;
+  font-family:var(--font-body);font-size:1rem;font-weight:700;letter-spacing:.5px;
+  border:none;border-radius:8px;cursor:pointer;white-space:nowrap;
   transition:background .15s,transform .1s;
-  height:calc(1.5rem + 1.24rem + 2px); /* match input height */
-  display:flex;align-items:center;
+  display:flex;align-items:center;justify-content:center;
 }
 .btn:hover{background:var(--teal-dark)}
 .btn:active{transform:scale(.98)}
@@ -209,8 +326,8 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .dep{font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:.5px;color:var(--teal-dark);line-height:1}
 .card.next .dep{color:var(--teal)}
 .meta{}
-.arr{font-size:.875rem;color:var(--ink-light);margin-bottom:.1rem}
-.arr strong{color:var(--ink-mid);font-weight:700}
+.arr{font-size:.875rem;font-weight:500;color:var(--ink-light);margin-bottom:.1rem}
+.arr strong{color:var(--ink-mid);font-weight:800}
 .dir{font-size:.75rem;font-weight:500;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-light)}
 .next-lozenge{
   display:inline-block;background:var(--teal);color:#fff;
@@ -468,7 +585,7 @@ footer{
 .detail-back:focus{outline:none;box-shadow:0 0 0 3px rgba(0,155,155,.3)}
 .detail-title-wrap{flex:1;min-width:0}
 .detail-title{
-  font-family:var(--font-display);font-size:1rem;letter-spacing:1px;font-weight:700;
+  font-family:var(--font-display);font-size:1rem;letter-spacing:1px;font-weight:800;
   color:#fff;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .detail-subtitle{font-size:.65rem;color:#6a9aaa;margin-top:2px;letter-spacing:.4px}
@@ -534,7 +651,7 @@ footer{
 .tl-name.dest{font-weight:700;color:var(--accent)}
 .tl-name.skipped{color:var(--ink-light);font-weight:400;font-size:.78rem}
 .tl-time{
-  font-family:var(--font-display);font-size:1.05rem;letter-spacing:.5px;
+  font-family:var(--font-display);font-size:1.05rem;font-weight:700;letter-spacing:.5px;
   color:var(--teal-dark);white-space:nowrap;
 }
 .tl-time.origin{color:var(--teal);font-size:1.2rem}
@@ -618,6 +735,76 @@ footer{
   </svg>
 </header>
 
+
+<!-- DESKTOP SEARCH BAR (visible ≥721px) -->
+<div class="search-bar" role="search" aria-label="Buscar trenes">
+
+  <!-- Row 1: Origen / Swap / Destino / Buscar -->
+  <div class="sb-row1">
+
+    <!-- Origen -->
+    <div class="sb-field">
+      <span class="sb-field-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="2"/>
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+        </svg>
+      </span>
+      <div class="sb-field-inner">
+        <span class="sb-field-label">Origen</span>
+        <select id="orig-d" aria-label="Estación de origen"><option value="" disabled hidden selected></option></select>
+      </div>
+    </div>
+
+    <!-- Swap -->
+    <button class="sb-swap" id="swap-d" aria-label="Intercambiar origen y destino">
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+        <path d="M3 5h11M11 2l3 3-3 3M14 12H3M6 9l-3 3 3 3"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Destino -->
+    <div class="sb-field">
+      <span class="sb-field-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2C7.24 2 5 4.24 5 7c0 4.25 5 11 5 11s5-6.75 5-11c0-2.76-2.24-5-5-5z"
+                stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <circle cx="10" cy="7" r="2" fill="currentColor"/>
+        </svg>
+      </span>
+      <div class="sb-field-inner">
+        <span class="sb-field-label">Destino</span>
+        <select id="dest-d" aria-label="Estación de destino"><option value="" disabled hidden selected></option></select>
+      </div>
+    </div>
+
+    <!-- Search button -->
+    <button class="sb-btn" id="go-d" aria-label="Buscar próximos trenes">Buscar</button>
+
+  </div>
+
+  <!-- Row 2: Day pills + time -->
+  <div class="sb-row2">
+    <span class="sb-row2-label">Día</span>
+    <div role="group" aria-label="Tipo de día" style="display:flex;gap:.4rem">
+      <button class="sb-pill" data-day="weekday">Lun – Vie</button>
+      <button class="sb-pill" data-day="saturday">Sábado</button>
+      <button class="sb-pill" data-day="sunday">Dom / Fer</button>
+    </div>
+    <div class="sb-divider" aria-hidden="true"></div>
+    <span class="sb-row2-label">Hora de salida</span>
+    <div class="sb-time-wrap">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <circle cx="7" cy="7" r="6" stroke="#9aabb5" stroke-width="1.5"/>
+        <path d="M7 4v3.5l2 2" stroke="#9aabb5" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="time" id="ttime-d" step="60" aria-label="Hora de salida"/>
+    </div>
+  </div>
+
+</div>
+
 <!-- LAYOUT -->
 <div class="layout" id="main">
 
@@ -625,29 +812,49 @@ footer{
   <aside class="left-col" aria-label="Planificador de viaje">
 
     <!-- ROUTE -->
-    <div class="pane">
+    <div class="pane pane-route">
       <div class="eyebrow">Recorrido</div>
       <div class="route-stack">
         <div class="field">
-          <label for="orig">Origen</label>
-          <select id="orig"><option value="">Seleccioná estación…</option></select>
+          <span class="field-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="2"/>
+              <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+            </svg>
+          </span>
+          <div class="field-inner">
+            <label for="orig">Origen</label>
+            <select id="orig"><option value="" disabled hidden selected></option></select>
+          </div>
         </div>
         <div class="swap-row">
           <div class="swap-rule"></div>
           <button class="swap-btn" id="swap" aria-label="Intercambiar origen y destino" title="Intercambiar">
-            <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 2v10M3 12l-2-2M3 12l2-2M11 12V2M11 2l-2 2M11 2l2 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 17 17" fill="none">
+              <path d="M3 5h11M11 2l3 3-3 3M14 12H3M6 9l-3 3 3 3"
+                    stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </button>
           <div class="swap-rule"></div>
         </div>
         <div class="field">
-          <label for="dest">Destino</label>
-          <select id="dest"><option value="">Seleccioná estación…</option></select>
+          <span class="field-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2C7.24 2 5 4.24 5 7c0 4.25 5 11 5 11s5-6.75 5-11c0-2.76-2.24-5-5-5z"
+                    stroke="currentColor" stroke-width="1.8" fill="none"/>
+              <circle cx="10" cy="7" r="2" fill="currentColor"/>
+            </svg>
+          </span>
+          <div class="field-inner">
+            <label for="dest">Destino</label>
+            <select id="dest"><option value="" disabled hidden selected></option></select>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- TIME + DAY -->
-    <div class="pane">
+    <div class="pane pane-time">
       <div class="eyebrow">Salida</div>
 
       <!-- Day pills -->
@@ -658,12 +865,20 @@ footer{
       </div>
 
       <!-- Time input + Buscar -->
-      <div class="time-row">
+      <div class="time-row" style="flex-direction:column;gap:.6rem">
         <div class="field">
-          <label for="ttime">Hora</label>
-          <input type="time" id="ttime" step="60"/>
+          <span class="field-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M9 5v4.5l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="field-inner">
+            <label for="ttime">Hora de salida</label>
+            <input type="time" id="ttime" step="60"/>
+          </div>
         </div>
-        <button class="btn" id="go" aria-label="Buscar próximos trenes">BUSCAR</button>
+        <button class="btn" id="go" aria-label="Buscar próximos trenes" style="width:100%">BUSCAR</button>
       </div>
     </div>
 
@@ -1537,6 +1752,22 @@ function resetToNow(){
   });
 }
 
+// ── DESKTOP SEARCH BAR ────────────────────────────────────────────────────────
+function populateDesktopSelects(){
+  const od=document.getElementById('orig-d'), dd=document.getElementById('dest-d');
+  if(!od||!dd) return;
+  ST.forEach((s,i)=>{ od.add(new Option(s,i)); dd.add(new Option(s,i)); });
+}
+
+function syncDesktopFromState(){
+  const od=document.getElementById('orig-d'), dd=document.getElementById('dest-d'), td=document.getElementById('ttime-d');
+  if(od) od.value=S.orig===null?'':S.orig;
+  if(dd) dd.value=S.dest===null?'':S.dest;
+  if(td) td.value=document.getElementById('ttime').value;
+  const pillDay=S.day==='holiday'?'sunday':S.day;
+  document.querySelectorAll('.sb-pill').forEach(b=>b.classList.toggle('on',b.dataset.day===pillDay));
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   populateSelects();
   tick(); setInterval(tick, 1000);
@@ -1590,8 +1821,65 @@ document.addEventListener('DOMContentLoaded',()=>{
   // document.getElementById('vbtn-map').addEventListener('click',()=>switchView('map'));
   // setupCanvasInteraction(); // MAP HIDDEN
 
-  // Search button
+  // Search button (mobile)
   document.getElementById('go').addEventListener('click', doSearch);
+
+  // ── Desktop search bar ────────────────────────────────────────────────────
+  populateDesktopSelects();
+  syncDesktopFromState();
+
+  // Desktop selects sync to S and mobile
+  document.getElementById('orig-d').addEventListener('change', ()=>{
+    const v=document.getElementById('orig-d').value;
+    S.orig=v===''?null:parseInt(v);
+    document.getElementById('orig').value=v;
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+  document.getElementById('dest-d').addEventListener('change', ()=>{
+    const v=document.getElementById('dest-d').value;
+    S.dest=v===''?null:parseInt(v);
+    document.getElementById('dest').value=v;
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+
+  // Desktop swap
+  document.getElementById('swap-d').addEventListener('click',()=>{
+    const od=document.getElementById('orig-d'), dd=document.getElementById('dest-d');
+    [od.value,dd.value]=[dd.value,od.value];
+    S.orig=od.value===''?null:parseInt(od.value);
+    S.dest=dd.value===''?null:parseInt(dd.value);
+    document.getElementById('orig').value=od.value;
+    document.getElementById('dest').value=dd.value;
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+
+  // Desktop time input
+  document.getElementById('ttime-d').addEventListener('change',()=>{
+    S.isNow=false;
+    document.getElementById('ttime').value=document.getElementById('ttime-d').value;
+    if(S.orig!==null&&S.dest!==null) doSearch();
+  });
+
+  // Desktop day pills
+  document.querySelectorAll('.sb-pill').forEach(b=>{
+    b.addEventListener('click',()=>{
+      S.day=b.dataset.day; S.isNow=false;
+      document.querySelectorAll('.sb-pill').forEach(x=>x.classList.toggle('on',x===b));
+      document.querySelectorAll('.pill').forEach(x=>{
+        const on=x.dataset.day===b.dataset.day;
+        x.classList.toggle('on',on);
+        x.setAttribute('aria-pressed',String(on));
+      });
+      if(S.orig!==null&&S.dest!==null) doSearch();
+    });
+  });
+
+  // Desktop search button
+  document.getElementById('go-d').addEventListener('click', doSearch);
+
+  // Keep desktop in sync when resetToNow fires
+  const _origReset=resetToNow;
+  resetToNow=function(){_origReset();syncDesktopFromState();};
 });
 </script>
 </body>
