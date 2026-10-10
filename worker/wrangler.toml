@@ -1,0 +1,16 @@
+# Deploys worker.js to Cloudflare, on the site's own domain under /api/.
+#   npx wrangler login                          (once)
+#   npx wrangler kv namespace create REPORTS    (once, then paste the id below)
+#   npx wrangler deploy
+name = "tren-urquiza-reports"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+routes = [{ pattern = "trenurquizahorarios.ar/api/*", zone_name = "trenurquizahorarios.ar" }]
+
+[[kv_namespaces]]
+binding = "REPORTS"
+id = "PASTE_THE_ID_HERE"
+
+[vars]
+ENABLED = "true" # "false" turns reports off for everyone without touching the page

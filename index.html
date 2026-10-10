@@ -419,6 +419,8 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
   transition:background .15s;
 }
 .report-btn:hover{background:#fff7e6}
+.report-btn:disabled,.report-undo:disabled{opacity:.5;cursor:default}
+.report-fail{grid-column:1/-1;font-size:.8rem;font-weight:500;color:var(--accent)}
 .report-btn:focus,.report-undo:focus{outline:none;box-shadow:0 0 0 3px rgba(224,149,0,.3)}
 .report-undo{
   flex:none;min-height:44px;padding:0 .3rem;background:none;border:none;cursor:pointer;
@@ -1176,14 +1178,14 @@ function waitBadge(diff){
 const REPORTS_ON      = true; // one switch to turn the feature off
 const REPORT_AFTER    = 3;    // minutes overdue before a train can be reported (the page's own margin)
 const PAST_WINDOW     = 30;   // minutes the last train due stays on screen
-const REPORT_MIN_LIFE = 10;   // a report lives at least this long when the terminal is close
+// The shared store is worker/worker.js. Off the real domain, the page talks to
+// a copy of it running on this computer (node worker/dev.mjs).
+const REPORTS_API     = TU_LIVE ? '/api/reports' : `http://${location.hostname}:8787/api/reports`;
 
 const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 
-// One ID per phone, so a rider counts once per train.
-// Stand-in for testing: ?otro=1 acts as a second rider in the same browser.
+// One ID per phone, so a rider counts once per train
 const DEVICE = (()=>{
-  if(new URLSearchParams(location.search).has('otro')) return 'otro';
   try{
     let id=localStorage.getItem('tu_device');
     if(!id){ id=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('tu_device',id); }
@@ -1191,59 +1193,81 @@ const DEVICE = (()=>{
   }catch(e){ return 'tmp-'+Math.random().toString(36).slice(2); }
 })();
 
-// Stand-in store: reports live in this browser only. The real one will be a
-// Cloudflare Worker behind the same four calls.
-// A report: {train:'2026-10-10|LC|18:00', st:station index, ts, exp, dev}
+// A report: {train:'2026-10-10|LC|18:00', st:station index, ts, exp}.
+// The server never says who sent one, so this phone remembers its own.
 const Reports = (()=>{
-  const KEY='tu_reports';
-  let cache=[];
-  const read  = () => { try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } };
-  const write = a => { try{ localStorage.setItem(KEY,JSON.stringify(a)); }catch(e){} };
+  const KEY='tu_mine';
+  let cache=[];        // what the server last sent
+  let loadedAt=0;
+  const gone=new Set(); // reports I took back, until the server's answer catches up
   const alive = a => { const now=Date.now(); return a.filter(r=>r.exp>now); };
+  let mine={};
+  try{ mine=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){}
+  const keep = () => {
+    const now=Date.now();
+    Object.keys(mine).forEach(t=>{ if(mine[t].exp<=now) delete mine[t]; });
+    try{ localStorage.setItem(KEY,JSON.stringify(mine)); }catch(e){}
+  };
+  const send = (method, body) => fetch(REPORTS_API,{method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
+    .then(r=>r.ok?r.json():Promise.reject());
   return {
-    load(){ cache=alive(read()); return Promise.resolve(cache); },
-    add(r){
-      cache=alive(read());
-      if(cache.some(x=>x.train===r.train&&x.dev===r.dev)) return Promise.resolve(false);
-      cache.push(r); write(cache);
-      return Promise.resolve(true);
+    // The timetable works without the store: a failed load leaves things as they were
+    load(){
+      return fetch(REPORTS_API+'?day='+todayKey())
+        .then(r=>r.ok?r.json():Promise.reject())
+        .then(d=>{ cache=alive(d.reports||[]); loadedAt=Date.now(); })
+        .catch(()=>{});
     },
-    remove(train,dev){
-      cache=alive(read()).filter(r=>!(r.train===train&&r.dev===dev)); write(cache);
-      return Promise.resolve();
+    stale(){ return Date.now()-loadedAt>15000; },
+    add(train, st){
+      return send('POST',{train, st, dev:DEVICE})
+        .then(d=>{ mine[train]=d.report; keep(); return true; })
+        .catch(()=>false);
     },
-    forTrain(train){ const now=Date.now(); return cache.filter(r=>r.train===train&&r.exp>now); }
+    remove(train){
+      const r=mine[train];
+      return send('DELETE',{train, dev:DEVICE})
+        .then(()=>{ if(r) gone.add(train+r.ts); delete mine[train]; keep(); return true; })
+        .catch(()=>false);
+    },
+    isMine(train){ const r=mine[train]; return !!r && r.exp>Date.now(); },
+    forTrain(train){
+      const now=Date.now();
+      const rs=cache.filter(r=>r.train===train && r.exp>now && !gone.has(train+r.ts));
+      const m=mine[train];
+      if(m && m.exp>now && !rs.some(r=>r.ts===m.ts)) rs.push(m);
+      return rs;
+    }
   };
 })();
 
 function say(msg){ document.getElementById('report-live').textContent=msg; }
 
-function afterReport(train, msg){
-  say(msg);
+let reportFailed=null; // the train whose report or undo did not get through
+
+function afterReport(train, ok, msg){
+  reportFailed = ok ? null : train;
+  say(ok ? msg : 'No se pudo enviar. Probá de nuevo.');
   doSearch(true);
   const card=[...document.querySelectorAll('#results .card')].find(c=>c.dataset.key===train);
   if(card) card.focus();
 }
 
-// minsToEnd: scheduled minutes from this station to the terminal. The train has
-// not come yet, so it cannot reach the end sooner than that.
-function sendReport(train, st, minsToEnd){
-  const ts=Date.now();
-  Reports.add({train, st, ts, dev:DEVICE, exp:ts+Math.max(minsToEnd,REPORT_MIN_LIFE)*60000})
-    .then(ok=>afterReport(train, ok?'Aviso enviado. Otros pasajeros van a ver la demora.':'Ya avisaste sobre este tren.'));
+function sendReport(train, st){
+  Reports.add(train, st).then(ok=>afterReport(train, ok, 'Aviso enviado. Otros pasajeros van a ver la demora.'));
 }
 
 function undoReport(train){
-  Reports.remove(train, DEVICE).then(()=>afterReport(train, 'Aviso retirado.'));
+  Reports.remove(train).then(ok=>afterReport(train, ok, 'Aviso retirado.'));
 }
 
 function delayNote(train){
   const rs=Reports.forTrain(train);
   if(!rs.length) return '';
   const last=rs.reduce((a,b)=>b.ts>a.ts?b:a);
-  const n=new Set(rs.map(r=>r.dev)).size;
+  const n=rs.length;
   const mins=Math.round((Date.now()-last.ts)/60000);
-  const mine=rs.some(r=>r.dev===DEVICE);
+  const mine=Reports.isMine(train);
   return `<div class="delay-note">
       <span>Demora reportada por ${n} ${n===1?'pasajero':'pasajeros'} en ${ST[last.st]}, ${mins<1?'recién':`hace ${mins} min`}.</span>
       ${mine?`<button type="button" class="report-undo" data-undo="${train}">Deshacer</button>`:''}
@@ -1346,7 +1370,7 @@ function doSearch(quiet){
 
   const pastHtml=past.map(t=>{
     const late=now-t.depO;
-    const mine=Reports.forTrain(t.key).some(r=>r.dev===DEVICE);
+    const mine=Reports.isMine(t.key);
     return `<div class="card past" role="listitem" tabindex="0" style="cursor:pointer"
       aria-label="Tren de las ${fmM(t.depO)} desde ${ST[o]}. Debía salir hace ${late} min. Hacé clic para ver detalle."
       data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}" data-key="${t.key}">
@@ -1358,6 +1382,7 @@ function doSearch(quiet){
       </div>
       ${delayNote(t.key)}
       ${late>REPORT_AFTER && !mine ? `<button type="button" class="report-btn" data-report="${t.key}">Avisar que no pasó</button>` : ''}
+      ${reportFailed===t.key ? '<div class="report-fail">No se pudo enviar. Probá de nuevo.</div>' : ''}
     </div>`;
   }).join('');
 
@@ -1395,10 +1420,14 @@ function doSearch(quiet){
     btn.addEventListener('keydown', e=>e.stopPropagation());
     btn.addEventListener('click', e=>{
       e.stopPropagation();
-      if(btn.dataset.report) sendReport(btn.dataset.report, o, (toLacroze?TM_LM[22]:TM_LC[0])-mO);
+      btn.disabled=true; // one tap, one request
+      if(btn.dataset.report) sendReport(btn.dataset.report, o);
       else undoReport(btn.dataset.undo);
     });
   });
+
+  // A new search asks the store again, so a rider sees reports made since the last look
+  if(live && !quiet && Reports.stale()) Reports.load().then(()=>doSearch(true));
 
   // Attach click listeners to cards
   panel.querySelectorAll('.card').forEach(card=>{
@@ -2065,10 +2094,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(REPORTS_ON){
     Reports.load();
     setInterval(liveRefresh, 30000);
-    // Stand-in only: another tab of this browser changed the stored reports
-    window.addEventListener('storage', e=>{
-      if(e.key==='tu_reports') Reports.load().then(()=>{ if(S.isNow&&S.orig!==null&&S.dest!==null) doSearch(true); });
-    });
   }
 });
 </script>
