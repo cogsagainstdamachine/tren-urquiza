@@ -392,6 +392,10 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .no-trains{padding:1rem;background:#fff4f0;border-radius:8px;border:1.5px solid #fcc9b5;color:var(--accent);font-size:.83rem;font-weight:500;text-align:center}
 
 /* INFO */
+/* SHARE */
+#results:has(.results-empty) ~ .share{display:none}
+.share .footer-pill{padding:.6rem 1rem}
+
 .info-box{
   background:var(--teal-xlight);border:1px solid var(--teal-light);
   border-radius:7px;padding:.65rem .85rem;
@@ -907,6 +911,15 @@ footer{
     <div class="pane" id="results" aria-live="polite" aria-label="Resultados">
       <div class="results-empty">
         <p>Elegí origen, destino y hora.</p>
+      </div>
+    </div>
+
+    <!-- SHARE: shown once there are results on screen -->
+    <div class="pane share">
+      <div class="eyebrow">Compartir</div>
+      <div class="footer-links">
+        <a class="footer-pill" data-share="whatsapp" target="_blank" rel="noopener" href="https://wa.me/?text=Horarios%20del%20Tren%20Urquiza.%20Eleg%C3%ADs%20dos%20estaciones%20y%20te%20muestra%20los%20pr%C3%B3ximos%20trenes.%20https%3A%2F%2Ftrenurquizahorarios.ar">WhatsApp</a>
+        <a class="footer-pill" data-share="x" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=Horarios%20del%20Tren%20Urquiza.%20Eleg%C3%ADs%20dos%20estaciones%20y%20te%20muestra%20los%20pr%C3%B3ximos%20trenes.&url=https%3A%2F%2Ftrenurquizahorarios.ar">X (Twitter)</a>
       </div>
     </div>
 
@@ -1833,6 +1846,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // Search button (mobile)
   document.getElementById('go').addEventListener('click', doSearch);
+
+  // Count taps on the share links
+  document.querySelectorAll('[data-share]').forEach(a=>{
+    a.addEventListener('click',()=>{ if(typeof gtag==='function') gtag('event','share',{method:a.dataset.share}); });
+  });
 
   // ── Desktop search bar ────────────────────────────────────────────────────
   populateDesktopSelects();
