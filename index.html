@@ -2,9 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
+<script>
+  // Analytics count visits to the real site only, not local test copies
+  var TU_LIVE = /(^|\.)trenurquizahorarios\.ar$/.test(location.hostname);
+  if(!TU_LIVE) window['ga-disable-G-5D538X1KGQ'] = true;
+</script>
   <!-- Hotjar Tracking Code for Tren Urquiza -->
 <script>
-    (function(h,o,t,j,a,r){
+    if(TU_LIVE) (function(h,o,t,j,a,r){
         h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
         h._hjSettings={hjid:6780825,hjsv:6};
         a=o.getElementsByTagName('head')[0];
@@ -390,6 +395,36 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .wait-num.ok{color:var(--ink-mid)}
 
 .no-trains{padding:1rem;background:#fff4f0;border-radius:8px;border:1.5px solid #fcc9b5;color:var(--accent);font-size:.83rem;font-weight:500;text-align:center}
+
+/* DELAY REPORTS */
+.cards.quiet .card{animation:none}
+.card.past{background:var(--white);border-style:dashed}
+.card.past .dep{color:var(--ink-light)}
+.card.past .meta{grid-column:2/-1}
+.past-lozenge{
+  display:inline-block;background:#fff7e6;color:#7a5200;
+  font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  padding:.12rem .45rem;border-radius:20px;margin-bottom:.2rem;
+}
+.delay-note{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  padding:.5rem .65rem;border-radius:4px;border-left:3px solid var(--yellow);background:#fff7e6;
+  font-size:.8rem;font-weight:500;line-height:1.35;color:#7a5200;text-wrap:balance;
+}
+.report-btn{
+  grid-column:1/-1;min-height:44px;padding:.6rem .9rem;
+  background:var(--white);color:var(--ink);
+  font-family:var(--font-body);font-size:.875rem;font-weight:700;
+  border:1.5px solid var(--yellow);border-radius:8px;cursor:pointer;
+  transition:background .15s;
+}
+.report-btn:hover{background:#fff7e6}
+.report-btn:focus,.report-undo:focus{outline:none;box-shadow:0 0 0 3px rgba(224,149,0,.3)}
+.report-undo{
+  flex:none;min-height:44px;padding:0 .3rem;background:none;border:none;cursor:pointer;
+  font-family:var(--font-body);font-size:.8rem;font-weight:700;color:#7a5200;text-decoration:underline;
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* INFO */
 .info-box{
@@ -909,6 +944,7 @@ footer{
         <p>Elegí origen, destino y hora.</p>
       </div>
     </div>
+    <div id="report-live" class="sr-only" role="status"></div>
 
     <!-- INFO -->
     <div class="pane" style="margin-top:auto">
@@ -1136,6 +1172,94 @@ function waitBadge(diff){
   return {t:m?`${h}h ${m}m`:`${h}h`,c:'ok'};
 }
 
+// ── DELAY REPORTS ─────────────────────────────────────────────────────────────
+const REPORTS_ON      = true; // one switch to turn the feature off
+const REPORT_AFTER    = 3;    // minutes overdue before a train can be reported (the page's own margin)
+const PAST_WINDOW     = 30;   // minutes the last train due stays on screen
+const REPORT_MIN_LIFE = 10;   // a report lives at least this long when the terminal is close
+
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+
+// One ID per phone, so a rider counts once per train.
+// Stand-in for testing: ?otro=1 acts as a second rider in the same browser.
+const DEVICE = (()=>{
+  if(new URLSearchParams(location.search).has('otro')) return 'otro';
+  try{
+    let id=localStorage.getItem('tu_device');
+    if(!id){ id=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('tu_device',id); }
+    return id;
+  }catch(e){ return 'tmp-'+Math.random().toString(36).slice(2); }
+})();
+
+// Stand-in store: reports live in this browser only. The real one will be a
+// Cloudflare Worker behind the same four calls.
+// A report: {train:'2026-10-10|LC|18:00', st:station index, ts, exp, dev}
+const Reports = (()=>{
+  const KEY='tu_reports';
+  let cache=[];
+  const read  = () => { try{ return JSON.parse(localStorage.getItem(KEY))||[]; }catch(e){ return []; } };
+  const write = a => { try{ localStorage.setItem(KEY,JSON.stringify(a)); }catch(e){} };
+  const alive = a => { const now=Date.now(); return a.filter(r=>r.exp>now); };
+  return {
+    load(){ cache=alive(read()); return Promise.resolve(cache); },
+    add(r){
+      cache=alive(read());
+      if(cache.some(x=>x.train===r.train&&x.dev===r.dev)) return Promise.resolve(false);
+      cache.push(r); write(cache);
+      return Promise.resolve(true);
+    },
+    remove(train,dev){
+      cache=alive(read()).filter(r=>!(r.train===train&&r.dev===dev)); write(cache);
+      return Promise.resolve();
+    },
+    forTrain(train){ const now=Date.now(); return cache.filter(r=>r.train===train&&r.exp>now); }
+  };
+})();
+
+function say(msg){ document.getElementById('report-live').textContent=msg; }
+
+function afterReport(train, msg){
+  say(msg);
+  doSearch(true);
+  const card=[...document.querySelectorAll('#results .card')].find(c=>c.dataset.key===train);
+  if(card) card.focus();
+}
+
+// minsToEnd: scheduled minutes from this station to the terminal. The train has
+// not come yet, so it cannot reach the end sooner than that.
+function sendReport(train, st, minsToEnd){
+  const ts=Date.now();
+  Reports.add({train, st, ts, dev:DEVICE, exp:ts+Math.max(minsToEnd,REPORT_MIN_LIFE)*60000})
+    .then(ok=>afterReport(train, ok?'Aviso enviado. Otros pasajeros van a ver la demora.':'Ya avisaste sobre este tren.'));
+}
+
+function undoReport(train){
+  Reports.remove(train, DEVICE).then(()=>afterReport(train, 'Aviso retirado.'));
+}
+
+function delayNote(train){
+  const rs=Reports.forTrain(train);
+  if(!rs.length) return '';
+  const last=rs.reduce((a,b)=>b.ts>a.ts?b:a);
+  const n=new Set(rs.map(r=>r.dev)).size;
+  const mins=Math.round((Date.now()-last.ts)/60000);
+  const mine=rs.some(r=>r.dev===DEVICE);
+  return `<div class="delay-note">
+      <span>Demora reportada por ${n} ${n===1?'pasajero':'pasajeros'} en ${ST[last.st]}, ${mins<1?'recién':`hace ${mins} min`}.</span>
+      ${mine?`<button type="button" class="report-undo" data-undo="${train}">Deshacer</button>`:''}
+    </div>`;
+}
+
+// Keeps the live list, the waits and the report ages current while the page stays open
+function liveRefresh(){
+  if(!S.isNow || S.orig===null || S.dest===null) return;
+  if(document.visibilityState!=='visible') return;
+  if(!document.getElementById('detail-overlay').hidden) return;
+  const a=document.activeElement;
+  if(a && a.tagName==='INPUT') return;
+  Reports.load().then(()=>{ resetToNow(); doSearch(true); });
+}
+
 // ── CLOCK ─────────────────────────────────────────────────────────────────────
 function tick(){
   const d=new Date();
@@ -1168,9 +1292,14 @@ function syncFromSelects(){
 }
 
 // ── SEARCH ────────────────────────────────────────────────────────────────────
-function doSearch(){
+function doSearch(quiet){
+  quiet = quiet===true; // a refresh, not a new search: no animation, nothing read out again
   const o=S.orig, d=S.dest;
   const panel=document.getElementById('results');
+  if(quiet){
+    panel.setAttribute('aria-live','off');
+    setTimeout(()=>panel.setAttribute('aria-live','polite'),200);
+  }
 
   if(o===null||d===null){
     panel.innerHTML='<div class="results-empty"><p>Seleccioná origen y destino.</p></div>';
@@ -1190,25 +1319,54 @@ function doSearch(){
   const req  = toM(tval);
   const now  = toM(nowStr());
 
-  const trains = deps
-    .map(t=>{ const b=toM(t); return {depO:b+mO, arrD:b+mD, dur:mD-mO}; })
-    .filter(t=>t.depO>=req)
-    .slice(0,6);
+  // Reports only make sense for right now, not for a day or time picked by hand
+  const live = REPORTS_ON && S.isNow;
+  const from = live ? now : req;
+  const trainId = `${todayKey()}|${toLacroze?'LC':'LM'}|`;
 
-  if(!trains.length){
-    panel.innerHTML='<div class="no-trains" role="alert">🚫 No hay más trenes en ese horario.<br>El servicio reinicia a la madrugada.</div>';
+  const all = deps.map(t=>{ const b=toM(t); return {depO:b+mO, arrD:b+mD, dur:mD-mO, key:trainId+t}; });
+  const trains = all.filter(t=>t.depO>=from).slice(0,6);
+
+  // The last train due here stays on screen, so a rider on the platform can say
+  // it has not come. A reported one stays too.
+  let past = [];
+  if(live){
+    const recent = all.filter(t=>t.depO<now && now-t.depO<=PAST_WINDOW);
+    past = recent.filter((t,i)=>i===recent.length-1 || Reports.forTrain(t.key).length).slice(-2);
+  }
+
+  const noMore='🚫 No hay más trenes en ese horario.<br>El servicio reinicia a la madrugada.';
+  if(!trains.length && !past.length){
+    panel.innerHTML=`<div class="no-trains" role="alert">${noMore}</div>`;
     return;
   }
 
   const dir=toLacroze?'→ Federico Lacroze':'→ General Lemos';
   const showWait = S.isNow;
 
+  const pastHtml=past.map(t=>{
+    const late=now-t.depO;
+    const mine=Reports.forTrain(t.key).some(r=>r.dev===DEVICE);
+    return `<div class="card past" role="listitem" tabindex="0" style="cursor:pointer"
+      aria-label="Tren de las ${fmM(t.depO)} desde ${ST[o]}. Debía salir hace ${late} min. Hacé clic para ver detalle."
+      data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}" data-key="${t.key}">
+      <div class="dep" aria-hidden="true">${fmM(t.depO)}</div>
+      <div class="meta">
+        <div class="past-lozenge" aria-hidden="true">Debía salir hace ${late} min</div>
+        <div class="arr">Llega <strong>${fmM(t.arrD)}</strong> a ${ST[d]}</div>
+        <div class="dir">${dir} · ${t.dur} min</div>
+      </div>
+      ${delayNote(t.key)}
+      ${late>REPORT_AFTER && !mine ? `<button type="button" class="report-btn" data-report="${t.key}">Avisar que no pasó</button>` : ''}
+    </div>`;
+  }).join('');
+
   const html=trains.map((t,i)=>{
     const isN=i===0;
     const w=showWait ? waitBadge(t.depO-now) : null;
     return `<div class="card${isN?' next':''}" role="listitem" tabindex="0" style="cursor:pointer"
       aria-label="${isN?'Próximo tren. ':''}Sale a las ${fmM(t.depO)} de ${ST[o]}, llega ${fmM(t.arrD)} a ${ST[d]}. Hacé clic para ver detalle."
-      data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}">
+      data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}" data-key="${t.key}">
       <div class="dep" aria-hidden="true">${fmM(t.depO)}</div>
       <div class="meta">
         ${isN?'<div class="next-lozenge" aria-hidden="true">Próximo</div>':''}
@@ -1219,6 +1377,7 @@ function doSearch(){
         <div class="wait-num ${w.c}" aria-label="Tiempo de espera: ${w.t}">${w.t}</div>
         <small class="wait-lbl">espera</small>
       </div>` : '<div></div>'}
+      ${live ? delayNote(t.key) : ''}
     </div>`;
   }).join('');
 
@@ -1228,7 +1387,18 @@ function doSearch(){
       <div class="results-route">${ST[o]} → ${ST[d]}</div>
     </div>
     <p style="font-size:.68rem;color:var(--ink-light);padding:.1rem .2rem .4rem;margin:0">* Los horarios pueden tener diferencias de +/− 3 minutos.</p>
-    <div class="cards" role="list">${html}</div>`;
+    <div class="cards${quiet?' quiet':''}" role="list">${pastHtml}${html}</div>
+    ${trains.length?'':`<div class="no-trains" style="margin-top:.45rem">${noMore}</div>`}`;
+
+  // Report buttons sit inside a card: keep their taps from opening the detail
+  panel.querySelectorAll('[data-report],[data-undo]').forEach(btn=>{
+    btn.addEventListener('keydown', e=>e.stopPropagation());
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(btn.dataset.report) sendReport(btn.dataset.report, o, (toLacroze?TM_LM[22]:TM_LC[0])-mO);
+      else undoReport(btn.dataset.undo);
+    });
+  });
 
   // Attach click listeners to cards
   panel.querySelectorAll('.card').forEach(card=>{
@@ -1890,6 +2060,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Keep desktop in sync when resetToNow fires
   const _origReset=resetToNow;
   resetToNow=function(){_origReset();syncDesktopFromState();};
+
+  // Delay reports: load them, then keep the live list current
+  if(REPORTS_ON){
+    Reports.load();
+    setInterval(liveRefresh, 30000);
+    // Stand-in only: another tab of this browser changed the stored reports
+    window.addEventListener('storage', e=>{
+      if(e.key==='tu_reports') Reports.load().then(()=>{ if(S.isNow&&S.orig!==null&&S.dest!==null) doSearch(true); });
+    });
+  }
 });
 </script>
 </body>
