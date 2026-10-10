@@ -2,7 +2,7 @@
 
 Una aplicación web simple y accesible para planificar viajes en el **Tren Urquiza** (Línea Urquiza, Ramal B) en Buenos Aires, Argentina.
 
-🌐 **Sitio:** [trenurquizahorario.ar](https://trenurquizahorario.ar)
+🌐 **Sitio:** [trenurquizahorarios.ar](https://trenurquizahorarios.ar)
 
 ---
 
