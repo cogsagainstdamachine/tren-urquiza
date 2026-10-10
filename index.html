@@ -1151,7 +1151,8 @@ function tick(){
 function populateSelects(){
   ['orig','dest'].forEach(id=>{
     const s=document.getElementById(id);
-    ST.forEach((n,i)=>s.add(new Option(n,i)));
+    // Listed from Federico Lacroze out to General Lemos; the value stays the station's index
+    for(let i=ST.length-1;i>=0;i--) s.add(new Option(ST[i],i));
   });
 }
 
@@ -1765,7 +1766,7 @@ function resetToNow(){
 function populateDesktopSelects(){
   const od=document.getElementById('orig-d'), dd=document.getElementById('dest-d');
   if(!od||!dd) return;
-  ST.forEach((s,i)=>{ od.add(new Option(s,i)); dd.add(new Option(s,i)); });
+  for(let i=ST.length-1;i>=0;i--){ od.add(new Option(ST[i],i)); dd.add(new Option(ST[i],i)); }
 }
 
 function syncDesktopFromState(){
