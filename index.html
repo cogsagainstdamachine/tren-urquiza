@@ -674,17 +674,19 @@ footer{
   display:flex;align-items:center;gap:.3rem;
   background:transparent;border:1.5px solid var(--rule);
   border-radius:6px;padding:.35rem .7rem;
-  color:var(--ink-mid);font-family:var(--font-body);font-size:.75rem;font-weight:600;
+  color:var(--white);font-family:var(--font-body);font-size:.75rem;font-weight:600;
   cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;
 }
-.detail-back:hover{background:var(--paper);color:var(--teal)}
-.detail-back:focus{outline:none;box-shadow:0 0 0 3px rgba(0,188,180,.25)}
+/* The bar is dark (--ink), so everything on it is light: white is 13.8:1 on it,
+   --rule 11.2:1 and --teal 5.8:1, all above WCAG 2 AA (4.5:1 text, 3:1 controls). */
+.detail-back:hover{background:var(--white);color:var(--ink)}
+.detail-back:focus{outline:none;box-shadow:0 0 0 3px var(--teal)}
 .detail-title-wrap{flex:1;min-width:0}
 .detail-title{
   font-family:var(--font-display);font-size:1rem;letter-spacing:1px;font-weight:800;
-  color:var(--ink);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--white);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.detail-subtitle{font-size:.65rem;color:var(--ink-light);margin-top:2px;letter-spacing:.4px}
+.detail-subtitle{font-size:.65rem;color:var(--rule);margin-top:2px;letter-spacing:.4px}
 
 /* VIEW TOGGLE */
 .view-toggle{
