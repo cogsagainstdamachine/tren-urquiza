@@ -1,12 +1,16 @@
 // Delay reports for trenurquizahorarios.ar: the store every rider shares.
 //
-//   GET    /api/reports                 -> {reports:[{train,st,ts,exp}]}
-//   POST   /api/reports {train,st,dev}  -> {report:{train,st,ts,exp}}
-//   DELETE /api/reports {train,dev}     -> {ok:true}
+//   GET    /api/reports                        -> {reports:[{train,st,ts,exp,k,loc,d}]}
+//   POST   /api/reports {train,st,dev,k,loc}   -> {report:{train,st,ts,exp,k,loc,d}}
+//   DELETE /api/reports {train,dev}            -> {ok:true}
 //
 // A train is '2026-10-10|LC|18:00': the day, the direction (LC to Lacroze,
 // LM to Lemos) and its departure from the terminal. st is the station index
 // the rider is at. A day's reports live in one KV entry, "day:YYYY-MM-DD".
+//
+// k is what the rider says: 'no' (it has not come) or 'yes' (it has just left).
+// loc is true when the rider's phone placed them at the station. d numbers the
+// riders behind one train's reports (1, 2, 3...) without saying who they are.
 
 // Running minutes from each terminal, copied from index.html (TM_LM, TM_LC).
 // If they change there, change them here.
@@ -15,8 +19,9 @@ const TM_LC = [48, 45, 43, 41, 39, 37, 34, 33, 29, 28, 26, 24, 21, 19, 17, 15, 1
 
 const REPORT_AFTER = 3;   // minutes overdue before a train can be reported
 const PAST_WINDOW  = 30;  // minutes after its time that a train can still be reported
+const LATE_WINDOW  = 60;  // the same, for a train that already has reports
 const MIN_LIFE     = 10;  // a report lives at least this long when the terminal is close
-const PER_IP_HOUR  = 5;   // reports one address can send in an hour
+const PER_IP_HOUR  = 8;   // reports and answers one address can send in an hour
 const PER_DAY      = 500; // reports the whole line can hold in a day
 
 const ALLOWED = /^(https:\/\/(www\.)?trenurquizahorarios\.ar|http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+)(:\d+)?)$/;
@@ -43,6 +48,16 @@ async function readDay(env, day) {
 
 const writeDay = (env, day, list) =>
   env.REPORTS.put('day:' + day, JSON.stringify(list), { expirationTtl: 36 * 3600 });
+
+// What goes out: everything but the device, which becomes a number per train
+function publish(list) {
+  const seen = {};
+  return list.map(r => {
+    const devs = seen[r.train] || (seen[r.train] = []);
+    if (!devs.includes(r.dev)) devs.push(r.dev);
+    return { train: r.train, st: r.st, ts: r.ts, exp: r.exp, k: r.k || 'no', loc: !!r.loc, d: devs.indexOf(r.dev) + 1 };
+  });
+}
 
 const edge = typeof caches !== 'undefined' && caches.default;
 const cacheKey = (url, day) => new Request(url.origin + '/api/reports?day=' + day);
@@ -81,7 +96,7 @@ export default {
       }
       const list = await readDay(env, day);
       const res = json(
-        { reports: list.map(({ train, st, ts, exp }) => ({ train, st, ts, exp })) },
+        { reports: publish(list) },
         200,
         { ...cors, 'Cache-Control': 'public, max-age=0, s-maxage=15' },
       );
@@ -118,7 +133,7 @@ export default {
     const total = toLacroze ? TM_LM[22] : TM_LC[0];
     if (off >= total) return json({ error: 'station' }, 400, cors);
     const late = min - (Number(m[3]) * 60 + Number(m[4]) + off);
-    if (late < REPORT_AFTER || late > PAST_WINDOW + 2) return json({ error: 'not overdue' }, 422, cors);
+    const k = body.k === 'yes' ? 'yes' : 'no';
 
     // A ceiling per address. Only a short hash is kept, and for an hour.
     const ip = request.headers.get('CF-Connecting-IP') || 'local';
@@ -127,17 +142,30 @@ export default {
     if (used >= PER_IP_HOUR) return json({ error: 'too many' }, 429, cors);
 
     const list = await readDay(env, day);
-    if (list.some(r => r.train === train && r.dev === dev)) return json({ error: 'already reported' }, 409, cors);
+    const forTrain = list.filter(r => r.train === train);
+    const mine = forTrain.filter(r => r.dev === dev);
+
+    // A first report has 30 minutes after the train's time. Once a train has
+    // reports, riders can keep answering for an hour.
+    const open = forTrain.length ? LATE_WINDOW : PAST_WINDOW;
+    if (late < REPORT_AFTER || late > open + 2) return json({ error: 'not overdue' }, 422, cors);
+
+    // "It has left" only answers a report someone made. One of each per rider,
+    // and no going back to "not yet" after saying it left.
+    if (k === 'yes' && !forTrain.length) return json({ error: 'nothing to answer' }, 422, cors);
+    if (mine.some(r => (r.k || 'no') === k || r.k === 'yes')) return json({ error: 'already reported' }, 409, cors);
     if (list.length >= PER_DAY) return json({ error: 'full' }, 429, cors);
 
-    // The train has not come, so it cannot reach the terminal sooner than this
+    // Until the train would reach the terminal from here: it has not come ('no')
+    // or it left just now ('yes'), so it cannot get there sooner.
     const ts = Date.now();
-    const report = { train, st, ts, exp: ts + Math.max(total - off, MIN_LIFE) * 60000 };
-    list.push({ ...report, dev });
+    const stored = { train, st, ts, exp: ts + Math.max(total - off, MIN_LIFE) * 60000, k, loc: body.loc === true, dev };
+    list.push(stored);
     await writeDay(env, day, list);
     await env.REPORTS.put(ipKey, String(used + 1), { expirationTtl: 3600 });
     if (edge) ctx.waitUntil(edge.delete(cacheKey(url, day)));
 
+    const report = publish(list.filter(r => r.train === train)).find(r => r.ts === ts && r.k === k);
     return json({ report }, 201, cors);
   },
 };

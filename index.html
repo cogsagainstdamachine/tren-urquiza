@@ -426,6 +426,10 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
   transition:background .15s;
 }
 .report-btn:hover{background:#fff7e6}
+.report-ask{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.report-ask span{grid-column:1/-1;font-size:.875rem;font-weight:700;color:var(--ink)}
+.report-ask .report-btn{grid-column:auto}
+.delay-note.soft{background:var(--white);border-left-color:var(--rule);color:var(--ink-mid)}
 .report-btn:disabled,.report-undo:disabled{opacity:.5;cursor:default}
 .report-fail{grid-column:1/-1;font-size:.8rem;font-weight:500;color:var(--accent)}
 .report-btn:focus,.report-undo:focus{outline:none;box-shadow:0 0 0 3px rgba(224,149,0,.3)}
@@ -1198,6 +1202,18 @@ function waitBadge(diff){
 const REPORTS_ON      = true; // one switch to turn the feature off
 const REPORT_AFTER    = 3;    // minutes overdue before a train can be reported (the page's own margin)
 const PAST_WINDOW     = 30;   // minutes the last train due stays on screen
+const LATE_WINDOW     = 60;   // the same, for a train riders are still waiting for
+const STATION_RADIUS  = 300;  // metres from a station that count as being at it (the closest two are 690 m apart)
+// Where each station is, [lat, lng], in the order of ST. From OpenStreetMap
+// (© OpenStreetMap contributors). COORDS further down is a sketch for the map and is kilometres off.
+const STATION_AT = [
+  [-34.53286,-58.70092],[-34.53720,-58.69492],[-34.54379,-58.68575],[-34.54886,-58.67880],
+  [-34.55531,-58.66986],[-34.56243,-58.66024],[-34.57330,-58.64558],[-34.58022,-58.64035],
+  [-34.58754,-58.62985],[-34.58786,-58.62103],[-34.58835,-58.60799],[-34.58897,-58.59067],
+  [-34.59001,-58.57185],[-34.59190,-58.55935],[-34.59378,-58.54698],[-34.59554,-58.53532],
+  [-34.59718,-58.52439],[-34.59560,-58.51055],[-34.59447,-58.50312],[-34.59321,-58.49466],
+  [-34.59248,-58.47628],[-34.59010,-58.46630],[-34.58675,-58.45549]
+];
 // The shared store is worker/worker.js. Off the real domain, the page talks to
 // a copy of it running on this computer (node worker/dev.mjs).
 const REPORTS_API     = TU_LIVE ? '/api/reports' : `http://${location.hostname}:8787/api/reports`;
@@ -1213,8 +1229,10 @@ const DEVICE = (()=>{
   }catch(e){ return 'tmp-'+Math.random().toString(36).slice(2); }
 })();
 
-// A report: {train:'2026-10-10|LC|18:00', st:station index, ts, exp}.
-// The server never says who sent one, so this phone remembers its own.
+// A report: {train:'2026-10-10|LC|18:00', st:station index, ts, exp, k, loc, d}.
+// k is 'no' (it has not come) or 'yes' (it has just left). loc says the rider's
+// phone placed them at the station. d numbers the riders behind a train's reports.
+// The server never says who sent one, so this phone remembers its own: {no, yes} per train.
 const Reports = (()=>{
   const KEY='tu_mine';
   let cache=[];        // what the server last sent
@@ -1223,9 +1241,13 @@ const Reports = (()=>{
   const alive = a => { const now=Date.now(); return a.filter(r=>r.exp>now); };
   let mine={};
   try{ mine=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){}
+  Object.keys(mine).forEach(t=>{ if(mine[t].ts) mine[t]={no:mine[t]}; }); // saved before there were two kinds
   const keep = () => {
     const now=Date.now();
-    Object.keys(mine).forEach(t=>{ if(mine[t].exp<=now) delete mine[t]; });
+    Object.keys(mine).forEach(t=>{
+      ['no','yes'].forEach(k=>{ if(mine[t][k] && mine[t][k].exp<=now) delete mine[t][k]; });
+      if(!mine[t].no && !mine[t].yes) delete mine[t];
+    });
     try{ localStorage.setItem(KEY,JSON.stringify(mine)); }catch(e){}
   };
   const send = (method, body) => fetch(REPORTS_API,{method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)})
@@ -1239,23 +1261,27 @@ const Reports = (()=>{
         .catch(()=>{});
     },
     stale(){ return Date.now()-loadedAt>15000; },
-    add(train, st){
-      return send('POST',{train, st, dev:DEVICE})
-        .then(d=>{ mine[train]=d.report; keep(); return true; })
+    add(train, st, k, loc){
+      return send('POST',{train, st, dev:DEVICE, k, loc})
+        .then(d=>{ (mine[train]=mine[train]||{})[k]=d.report; keep(); return true; })
         .catch(()=>false);
     },
+    // Takes back everything this phone said about the train
     remove(train){
-      const r=mine[train];
+      const m=mine[train]||{};
       return send('DELETE',{train, dev:DEVICE})
-        .then(()=>{ if(r) gone.add(train+r.ts); delete mine[train]; keep(); return true; })
+        .then(()=>{ ['no','yes'].forEach(k=>{ if(m[k]) gone.add(train+m[k].ts); }); delete mine[train]; keep(); return true; })
         .catch(()=>false);
     },
-    isMine(train){ const r=mine[train]; return !!r && r.exp>Date.now(); },
+    mine(train){
+      const m=mine[train]||{}, now=Date.now();
+      return { no:!!m.no && m.no.exp>now, yes:!!m.yes && m.yes.exp>now };
+    },
     forTrain(train){
       const now=Date.now();
       const rs=cache.filter(r=>r.train===train && r.exp>now && !gone.has(train+r.ts));
-      const m=mine[train];
-      if(m && m.exp>now && !rs.some(r=>r.ts===m.ts)) rs.push(m);
+      const m=mine[train]||{};
+      ['no','yes'].forEach(k=>{ if(m[k] && m[k].exp>now && !rs.some(r=>r.ts===m[k].ts)) rs.push(m[k]); });
       return rs;
     }
   };
@@ -1263,35 +1289,111 @@ const Reports = (()=>{
 
 function say(msg){ document.getElementById('report-live').textContent=msg; }
 
-let reportFailed=null; // the train whose report or undo did not get through
+let reportFailed=null; // {train, msg} when a report or undo did not get through
 
 function afterReport(train, ok, msg){
-  reportFailed = ok ? null : train;
-  say(ok ? msg : 'No se pudo enviar. Probá de nuevo.');
+  reportFailed = ok ? null : {train, msg};
+  say(msg);
   doSearch(true);
   const card=[...document.querySelectorAll('#results .card')].find(c=>c.dataset.key===train);
   if(card) card.focus();
 }
 
-function sendReport(train, st){
-  Reports.add(train, st).then(ok=>afterReport(train, ok, 'Aviso enviado. Otros pasajeros van a ver la demora.'));
+// Whether the phone is at the station. Asked only when the rider taps, and the
+// position never leaves the phone. Local test copies skip it unless ?gps is in the address.
+function atStation(st){
+  if(!TU_LIVE && !new URLSearchParams(location.search).has('gps')) return Promise.resolve('near');
+  if(!navigator.geolocation) return Promise.resolve('unknown');
+  return new Promise(done=>{
+    navigator.geolocation.getCurrentPosition(p=>{
+      const [lat,lng]=STATION_AT[st], rad=x=>x*Math.PI/180;
+      const dx=rad(p.coords.longitude-lng)*Math.cos(rad(lat)), dy=rad(p.coords.latitude-lat);
+      const metres=6371000*Math.sqrt(dx*dx+dy*dy);
+      done(metres-Math.min(p.coords.accuracy||0,150)<=STATION_RADIUS ? 'near' : 'far');
+    }, ()=>done('unknown'), {timeout:8000, maximumAge:60000});
+  });
+}
+
+// k: 'no' (it has not come) or 'yes' (it has just left). A rider who is somewhere
+// else cannot report. One whose phone gives no position can, without the "at the station" mark.
+function sendReport(train, st, k){
+  atStation(st).then(where=>{
+    if(where==='far'){ afterReport(train, false, 'Para avisar tenés que estar en la estación.'); return; }
+    Reports.add(train, st, k, where==='near').then(ok=>afterReport(train, ok,
+      ok ? 'Aviso enviado. Otros pasajeros lo van a ver.' : 'No se pudo enviar. Probá de nuevo.'));
+  });
 }
 
 function undoReport(train){
-  Reports.remove(train).then(ok=>afterReport(train, ok, 'Aviso retirado.'));
+  Reports.remove(train).then(ok=>afterReport(train, ok, ok ? 'Aviso retirado.' : 'No se pudo enviar. Probá de nuevo.'));
 }
 
-function delayNote(train){
-  const rs=Reports.forTrain(train);
-  if(!rs.length) return '';
-  const last=rs.reduce((a,b)=>b.ts>a.ts?b:a);
-  const n=rs.length;
-  const mins=Math.round((Date.now()-last.ts)/60000);
-  const mine=Reports.isMine(train);
+// What the reports say about one train. Stations are compared along its direction of travel.
+function trainStatus(key, toLacroze){
+  const rs=Reports.forTrain(key);
+  if(!rs.length) return null;
+  const b=toM(key.split('|')[2]), TM=toLacroze?TM_LM:TM_LC;
+  const sched = st => b+TM[st];                    // when it is due at a station, in minutes
+  const beyond = (a,c) => toLacroze ? a>c : a<c;    // a is further down the line than c
+  const clock = ts => { const d=new Date(ts); return d.getHours()*60+d.getMinutes(); };
+  // The furthest station it was seen leaving
+  const yes=rs.filter(r=>r.k==='yes').reduce((a,r)=>!a||beyond(r.st,a.st)||(r.st===a.st&&r.ts>a.ts)?r:a, null);
+  // "Not yet" only counts past that station
+  const nos=rs.filter(r=>r.k!=='yes' && (!yes || beyond(r.st,yes.st)));
+  return {
+    yes, nos, sched, beyond, clock,
+    riders:new Set(rs.map(r=>r.d)).size,
+    sure:new Set(rs.filter(r=>r.loc).map(r=>r.d)).size>=2, // two riders placed at a station
+    // The train was seen leaving this station or one further on
+    gone:st => !!yes && (yes.st===st || beyond(yes.st,st)),
+    // Minutes late it must be at a station, from "not yet" answers there or before it
+    lateAt:st => Math.max(0, ...nos.filter(r=>r.st===st||beyond(st,r.st)).map(r=>clock(r.ts)-sched(r.st)))
+  };
+}
+
+// The line under a card. t is the train as listed at station o.
+function delayNote(t, o, toLacroze){
+  const s=trainStatus(t.key, toLacroze);
+  if(!s) return '';
+  const mine=Reports.mine(t.key);
+  const who=s.riders===1?'1 pasajero':s.riders+' pasajeros';
+  const nowM=toM(nowStr());
+  let text;
+  if(s.yes){
+    const at=s.clock(s.yes.ts), late=Math.max(0, at-s.sched(s.yes.st));
+    if(s.gone(o)){
+      text=`Ya pasó por ${ST[s.yes.st]} a las ${fmM(at)}.`;
+    }else{
+      const est=t.depO+Math.max(late, s.lateAt(o));
+      text=`Salió de ${ST[s.yes.st]} ${late} min tarde.`;
+      if(s.sure && est>=nowM) text+=` Pasaría por acá cerca de las <strong>${fmM(est)}</strong>.`;
+    }
+  }else{
+    const last=s.nos.reduce((a,r)=>r.ts>a.ts?r:a);
+    const here=s.nos.filter(r=>r.st===o||s.beyond(o,r.st));
+    if(s.sure && here.length){
+      const ref=here.reduce((a,r)=>r.ts>a.ts?r:a), est=t.depO+s.lateAt(o);
+      text=`Demora confirmada por ${who}: a las ${fmM(s.clock(ref.ts))} no había pasado por ${ST[ref.st]}.`;
+      if(est>nowM) text+=` No pasa por acá antes de las <strong>${fmM(est)}</strong>.`;
+    }else{
+      const mins=Math.round((Date.now()-last.ts)/60000);
+      text=`Demora reportada por ${who} en ${ST[last.st]}, ${mins<1?'recién':`hace ${mins} min`}.`;
+    }
+  }
   return `<div class="delay-note">
-      <span>Demora reportada por ${n} ${n===1?'pasajero':'pasajeros'} en ${ST[last.st]}, ${mins<1?'recién':`hace ${mins} min`}.</span>
-      ${mine?`<button type="button" class="report-undo" data-undo="${train}">Deshacer</button>`:''}
+      <span>${text}</span>
+      ${mine.no||mine.yes?`<button type="button" class="report-undo" data-undo="${t.key}">Deshacer</button>`:''}
     </div>`;
+}
+
+// What a rider at station o can say about a train that was due there `late` minutes ago
+function reportAsk(t, o, toLacroze, late){
+  const s=trainStatus(t.key, toLacroze), mine=Reports.mine(t.key);
+  if(late<=REPORT_AFTER || mine.yes || (s && s.gone(o))) return '';
+  const btn=(k,label)=>`<button type="button" class="report-btn" data-report="${k}" data-train="${t.key}">${label}</button>`;
+  if(!s) return btn('no','Avisar que no pasó');
+  if(mine.no) return btn('yes','Avisar que ya pasó');
+  return `<div class="report-ask"><span>¿Ya pasó este tren?</span>${btn('no','Todavía no')}${btn('yes','Ya pasó')}</div>`;
 }
 
 // Keeps the live list, the waits and the report ages current while the page stays open
@@ -1372,12 +1474,21 @@ function doSearch(quiet){
   const trains = all.filter(t=>t.depO>=from).slice(0,6);
 
   // The last train due here stays on screen, so a rider on the platform can say
-  // it has not come. A reported one stays too.
+  // it has not come. An earlier one stays while riders here, or before here, are
+  // still waiting for it.
   let past = [];
   if(live){
-    const recent = all.filter(t=>t.depO<now && now-t.depO<=PAST_WINDOW);
-    past = recent.filter((t,i)=>i===recent.length-1 || Reports.forTrain(t.key).length).slice(-2);
+    const recent = all.filter(t=>t.depO<now && now-t.depO<=LATE_WINDOW);
+    const waited = t => { const s=trainStatus(t.key, toLacroze); return !!s && !s.gone(o) && s.nos.some(r=>r.st===o||s.beyond(o,r.st)); };
+    past = recent.filter((t,i)=>(i===recent.length-1 && now-t.depO<=PAST_WINDOW) || waited(t)).slice(-2);
   }
+
+  // The train right behind one reported late may be held up by it
+  const behind = t => {
+    const prev=all[all.indexOf(t)-1];
+    if(!prev || !trainStatus(prev.key, toLacroze)) return '';
+    return `<div class="delay-note soft"><span>El tren de las ${fmM(prev.depO)} fue reportado con demora y puede atrasar a este.</span></div>`;
+  };
 
   const noMore='🚫 No hay más trenes en ese horario.<br>El servicio reinicia a la madrugada.';
   if(!trains.length && !past.length){
@@ -1390,7 +1501,6 @@ function doSearch(quiet){
 
   const pastHtml=past.map(t=>{
     const late=now-t.depO;
-    const mine=Reports.isMine(t.key);
     return `<div class="card past" role="listitem" tabindex="0" style="cursor:pointer"
       aria-label="Tren de las ${fmM(t.depO)} desde ${ST[o]}. Debía salir hace ${late} min. Hacé clic para ver detalle."
       data-dep="${t.depO}" data-arr="${t.arrD}" data-dur="${t.dur}" data-key="${t.key}">
@@ -1400,9 +1510,9 @@ function doSearch(quiet){
         <div class="arr">Llega <strong>${fmM(t.arrD)}</strong> a ${ST[d]}</div>
         <div class="dir">${dir} · ${t.dur} min</div>
       </div>
-      ${delayNote(t.key)}
-      ${late>REPORT_AFTER && !mine ? `<button type="button" class="report-btn" data-report="${t.key}">Avisar que no pasó</button>` : ''}
-      ${reportFailed===t.key ? '<div class="report-fail">No se pudo enviar. Probá de nuevo.</div>' : ''}
+      ${delayNote(t, o, toLacroze) || behind(t)}
+      ${reportAsk(t, o, toLacroze, late)}
+      ${reportFailed && reportFailed.train===t.key ? `<div class="report-fail">${reportFailed.msg}</div>` : ''}
     </div>`;
   }).join('');
 
@@ -1422,7 +1532,7 @@ function doSearch(quiet){
         <div class="wait-num ${w.c}" aria-label="Tiempo de espera: ${w.t}">${w.t}</div>
         <small class="wait-lbl">espera</small>
       </div>` : '<div></div>'}
-      ${live ? delayNote(t.key) : ''}
+      ${live ? (delayNote(t, o, toLacroze) || behind(t)) : ''}
     </div>`;
   }).join('');
 
@@ -1440,8 +1550,8 @@ function doSearch(quiet){
     btn.addEventListener('keydown', e=>e.stopPropagation());
     btn.addEventListener('click', e=>{
       e.stopPropagation();
-      btn.disabled=true; // one tap, one request
-      if(btn.dataset.report) sendReport(btn.dataset.report, o);
+      btn.closest('.card').querySelectorAll('button').forEach(b=>b.disabled=true); // one tap, one request
+      if(btn.dataset.report) sendReport(btn.dataset.train, o, btn.dataset.report);
       else undoReport(btn.dataset.undo);
     });
   });
