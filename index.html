@@ -359,7 +359,7 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 .cards{display:flex;flex-direction:column;gap:.45rem}
 
 .card{
-  display:grid;grid-template-columns:68px 1fr auto;
+  display:grid;grid-template-columns:auto 1fr auto;
   align-items:center;gap:.7rem;
   padding:.8rem .9rem;
   border-radius:8px;border:1.5px solid var(--rule);background:var(--paper);
@@ -378,6 +378,13 @@ input[type="time"]{-webkit-appearance:none;appearance:none}
 
 .dep{font-family:var(--font-display);font-size:1.75rem;font-weight:800;letter-spacing:.5px;color:var(--teal-dark);line-height:1}
 .card.next .dep{color:var(--teal)}
+/* The time's column fits the time, so it never runs into the text beside it.
+   Phones make room for that with a slightly smaller time and side padding, so the
+   text column stays as wide as it was; wider screens get more air between the two. */
+@media(max-width:720px){.card{padding:.8rem .65rem}.dep{font-size:1.5rem;letter-spacing:0}}
+@media(min-width:721px){.card{gap:1.1rem}}
+/* When these lines wrap, no word is left alone on the last one */
+.arr,.dir{text-wrap:balance}
 .meta{}
 .arr{font-size:.875rem;font-weight:500;color:var(--ink-light);margin-bottom:.1rem}
 .arr strong{color:var(--ink-mid);font-weight:800}
